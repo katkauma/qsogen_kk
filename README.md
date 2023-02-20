@@ -1,6 +1,9 @@
 
 # qsogen <a href="https://ascl.net/2205.003"><img src="https://img.shields.io/badge/ascl-2205.003-blue.svg?colorB=262255" alt="ascl:2205.003" /></a>
 
+This fork contains changes made for my personal use of the code.  Use at your own risk.
+Original readme below:
+
 ------------
 Introduction
 ------------
