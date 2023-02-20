@@ -186,7 +186,7 @@ class Quasar_sed:
 
         """
         if params is None:
-            from config import params
+            from qsogen.config import params
         _params = params.copy()  # avoid overwriting params dict with kwargs
         for key, value in kwargs.items():
             if key not in _params.keys():

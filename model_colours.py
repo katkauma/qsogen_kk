@@ -39,7 +39,7 @@ And then run the SED model many times, using filter wav arrays as input wavlen:
 
 import numpy as np
 from scipy.integrate import simps
-from qsosed import Quasar_sed
+from qsogen.qsosed import Quasar_sed
 
 # assume 2007 Vega spectrum has zero magnitude in all bands
 Vega_zeropoints = dict(
@@ -183,7 +183,7 @@ for band in ['GALEX_NUV',
     try:
         wavarr, response = np.genfromtxt(band+'.filter', unpack=True)
     except OSError:
-        wavarr, response = np.genfromtxt('filters/'+band+'.filter', unpack=True)
+        wavarr, response = np.genfromtxt('/data/ktk25/qsogen/filters/'+band+'.filter', unpack=True)
     wavarrs[band] = wavarr
     resparrs[band] = response
 
