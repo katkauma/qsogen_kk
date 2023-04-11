@@ -183,7 +183,7 @@ for band in ['GALEX_NUV',
     try:
         wavarr, response = np.genfromtxt(band+'.filter', unpack=True)
     except OSError:
-        wavarr, response = np.genfromtxt('/data/ktk25/qsogen/filters/'+band+'.filter', unpack=True)
+        wavarr, response = np.genfromtxt('/data/ktk25/qsogen_kk/filters/'+band+'.filter', unpack=True)
     wavarrs[band] = wavarr
     resparrs[band] = response
 
@@ -292,6 +292,7 @@ def get_mags(redshifts,
                       'UKIDSS_K_Vega',
                       'WISE_W1_Vega',
                       'WISE_W2_Vega'],
+             get_flux=False,
              **kwargs):
     """Get synthetic magnitudes from quasar model.
 
@@ -349,8 +350,12 @@ def get_mags(redshifts,
 
             # Create individual arrays with the flux in each observed passband
             fluxes = np.split(ordered_flux[isort], split_indices)
-
-            model_mags.append(sed2mags(filters, waves, fluxes, responses))
+            
+            #added by katherine
+            if get_flux:
+                model_mags.append(sed2fluxes(filters, waves, fluxes, responses))
+            else:
+                model_mags.append(sed2mags(filters, waves, fluxes, responses))
 
     except TypeError:
         z = float(redshifts)
@@ -363,10 +368,23 @@ def get_mags(redshifts,
         # Create individual arrays with the flux in each observed passband
         fluxes = np.split(ordered_flux[isort], split_indices)
 
-        model_mags.append(sed2mags(filters, waves, fluxes, responses))
+        #added by katherine
+        if get_flux:
+            model_mags.append(sed2fluxes(filters, waves, fluxes, responses))
+
+        else:
+            model_mags.append(sed2mags(filters, waves, fluxes, responses))
 
     return(np.array(model_mags))
 
+#added by katherine
+def sed2fluxes(filters,waves,fluxes,responses):
+        flux_bands = np.full(len(waves),np.nan)
+       
+        for i in range(len(waves)):
+           flux = simps(waves[i]*responses[i]*fluxes[i], waves[i])
+           flux_bands[i] = flux
+        return(flux_bands)
 
 def sed2mags(filters, waves, fluxes, responses):
 
