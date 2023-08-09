@@ -63,7 +63,26 @@ def bb(tbb, wav):
 
 def tau_eff(z):
     """Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B."""
-    tau_eff = 0.751*((1 + z) / (1 + 3.5))**2.90 - 0.132
+    # using the coefficient values from bosman et al 2022
+    '''tau0=0.3
+    beta=13.7
+    C=1.35
+    z0=4.8'''
+
+    #tau_eff = tau0*((1+z)/(1+z0))**beta+C
+    #tau_eff = 0.751*((1 + z) / (1 + 3.5))**2.90 - 0.132
+    
+    #my smoothly varying double power law
+    
+        
+    A = 2.52933081
+    z_b = 5.38682248
+    a_1 = -2.73596226
+    a_2 = -8.29698013
+    delta = 0.06769386
+    
+    tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)
+
     return np.where(tau_eff < 0, 0., tau_eff)
 
 
@@ -533,6 +552,7 @@ class Quasar_sed:
         from ratio of oscillator strengths (e.g. Keating+ 2020MNRAS.497..906K).
         """
         if tau_eff(self.z) > 0.:
+            
 
             # Transmission shortward of Lyman-gamma
             scale = np.zeros_like(self.flux)
