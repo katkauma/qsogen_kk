@@ -62,9 +62,10 @@ def bb(tbb, wav):
 
 
 def tau_eff(z):
-    """Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B."""
+    #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
     # using the coefficient values from bosman et al 2022
-    '''tau0=0.3
+    '''
+    tau0=0.3
     beta=13.7
     C=1.35
     z0=4.8'''
@@ -74,14 +75,16 @@ def tau_eff(z):
     
     #my smoothly varying double power law
     
-        
-    A = 2.52933081
-    z_b = 5.38682248
-    a_1 = -2.73596226
-    a_2 = -8.29698013
-    delta = 0.06769386
+       
+    A = 2.13369912
+    z_b = 5.17124349
+    a_1 = -2.32643103
+    a_2 = -7.01644977
+    delta = 0.05886805
+    c = -0.09805639
     
-    tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)
+    tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)+c
+	
 
     return np.where(tau_eff < 0, 0., tau_eff)
 

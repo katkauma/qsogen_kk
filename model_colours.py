@@ -86,6 +86,10 @@ Vega_zeropoints = dict(
     WISE_W2_Vega=1.156727e-03,
     WISE_W3_Vega=3.901671e-04,
     WISE_W4_Vega=4.489671e-05,
+    BOK_g_AB=1.399249e-02,
+    BOK_r_AB=1.142863e-02,
+    MzLS_z_AB=7.589110e-03,
+
 )
 AB_zeropoints = dict(
     GALEX_NUV_AB=2.143184e+00,
@@ -131,6 +135,10 @@ AB_zeropoints = dict(
     WISE_W2_AB=2.450814e-02,
     WISE_W3_AB=4.859685e-02,
     WISE_W4_AB=2.006357e-02,
+    BOK_g_AB=1.399249e-02,
+    BOK_r_AB=1.142863e-02,
+    MzLS_z_AB=7.589110e-03,
+
 )
 
 zeropoints = {**Vega_zeropoints, **AB_zeropoints}
@@ -179,7 +187,10 @@ for band in ['GALEX_NUV',
              'WISE_W1',
              'WISE_W2',
              'WISE_W3',
-             'WISE_W4']:
+             'WISE_W4',
+             'BOK_g',
+             'BOK_r',
+             'MzLS_z']:
     try:
         wavarr, response = np.genfromtxt(band+'.filter', unpack=True)
     except OSError:
@@ -454,7 +465,7 @@ def produce_zeropoints(system='Vega',
     print(system + '_zeropoints = dict(')
 
     if system == 'Vega':
-        wav_Vega, flux_Vega = np.genfromtxt('vega_2007.lis', unpack=True)
+        wav_Vega, flux_Vega = np.genfromtxt('/data/ktk25/qsogen_kk/vega_2007.lis', unpack=True)
         # Vega spectrum
         fluxes = [np.interp(wav, wav_Vega, flux_Vega) for wav in waves]
 
