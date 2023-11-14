@@ -19,7 +19,6 @@ from astropy.convolution import Gaussian1DKernel, convolve
 
 _c_ = 299792458.0   # speed of light in m/s
 
-
 def four_pi_dL_sq(z):
     """Compute luminosity distance for flux-luminosity conversion."""
 
@@ -60,8 +59,10 @@ def bb(tbb, wav):
     """
     return (wav**(-3))/(np.exp(1.43877735e8 / (tbb*wav)) - 1.0)
 
+#######
+# different tau models
 
-def tau_eff(z):
+def tau_eff_dpl(z):
     #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
     # using the coefficient values from bosman et al 2022
     '''
@@ -87,6 +88,21 @@ def tau_eff(z):
 	
 
     return np.where(tau_eff < 0, 0., tau_eff)
+
+def tau_eff_becker2013(z):
+        #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
+    # using the coefficient values from bosman et al 2022
+    
+    tau0=0.3
+    beta=13.7
+    C=1.35
+    z0=4.8
+
+    tau_eff = tau0*((1+z)/(1+z0))**beta+C
+    tau_eff = 0.751*((1 + z) / (1 + 3.5))**2.90 - 0.132
+    
+    return np.where(tau_eff < 0, 0., tau_eff)
+
 
 
 class Quasar_sed:
@@ -119,6 +135,7 @@ class Quasar_sed:
                  wavlen=np.logspace(2.95, 4.48, num=20001, endpoint=True),
                  ebv=0.,
                  params=None,
+                 absmod = 'inoue+2014',
                  **kwargs):
         """Initialises an instance of the Quasar SED model.
 
@@ -260,7 +277,7 @@ class Quasar_sed:
         #######################################################
         # READY, SET, GO!
         #######################################################
-
+        self.wavred = (self.z + 1)*self.wavlen
         self.set_continuum()
         self.add_blackbody()
         if self.bcnorm:
@@ -293,10 +310,10 @@ class Quasar_sed:
             self.flux[:lylim] = 0.0
             self.host_galaxy_flux[:lylim] = 0.0
             # Then add in Ly forest absorption at z>1.4
-            self.lyman_forest()
+            self.lyman_forest(absmod=absmod)
 
         # redshift spectrum
-        self.wavred = (self.z + 1)*self.wavlen
+        
 
     def wav2num(self, wav):
         """Convert a wavelength to an index."""
@@ -543,47 +560,84 @@ class Quasar_sed:
         exttmp = self.ebv * (extref + R)
         self.flux = self.flux*10.0**(-exttmp/2.5)
 
-    def lyman_forest(self):
-        """Suppress flux due to incomplete transmission through the IGM.
-
-        Include suppression due to Ly alpha, Ly beta, Ly gamma, using
-        parameterisation of Becker+ 2013MNRAS.430.2067B:
-        tau_eff(z) = 0.751*((1+z)/(1+3.5))**2.90-0.132
-        for z > 1.45, and assuming
-        tau_Lyb = 0.16*tau_Lya
-        tau_Lyg = 0.056*tau_Lya
-        from ratio of oscillator strengths (e.g. Keating+ 2020MNRAS.497..906K).
-        """
-        if tau_eff(self.z) > 0.:
+    def lyman_forest(self,absmod='inoue+2014'):
+        
+        absmodels = {'dpl':tau_eff_dpl,
+                     'becker+2013': tau_eff_becker2013,
+                     'inoue+2014': None}
+        
+        if absmod == 'dpl' or absmod == 'becker+2013':
+            tau_eff = absmodels[absmod]
+            lyseries ={0: [1215.67,1],
+	                1: [1025.72,0.19005811214447021],
+	                2: [972.537,0.06965703475200001]}
+            for i in lyseries.keys():
+	            scale = np.zeros_like(self.flux)
+	            wlim = lyseries[i][0]
+	            ratio = lyseries[i][1]
+	            zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
+	            scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
+	            scale = np.exp(-ratio*scale)
+	            self.flux = scale * self.flux
+	            self.host_galaxy_flux = scale * self.host_galaxy_flux
             
+        elif absmod=='inoue+2014':
+            n = 15
+            lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])[:n]
+            A1 = np.array([1.690e-2,4.692e-3,2.239e-3,1.319e-3,8.707e-4,6.178e-4,4.609e-4,3.569e-4,2.843e-4,2.318e-4,1.923e-4,1.622e-4,1.385e-4,1.196e-4,1.043e-4,9.174e-5,8.128e-5,7.251e-5,6.505e-5,5.868e-5,5.319e-5,4.843e-5,4.427e-5,4.063e-5,3.738e-5,3.454e-5,3.199e-5,2.971e-5,2.766e-5,2.582e-5,2.415e-5,2.263e-5,2.126e-5,2.000e-5,1.885e-5,1.779e-5,1.682e-5,1.593e-5,1.510e-5])[:n,None]
+            A2 = np.array([2.354e-3,6.536e-4,3.119e-4,1.837e-4,1.213e-4,8.606e-5,6.421e-5,4.971e-5,3.960e-5,3.229e-5,2.679e-5,2.259e-5,1.929e-5,1.666e-5,1.453e-5,1.278e-5,1.132e-5,1.010e-5,9.062e-6,8.174e-6,7.409e-6,6.746e-6,6.167e-6,5.660e-6,5.207e-6,4.811e-6,4.456e-6,4.139e-6,3.853e-6,3.596e-6,3.364e-6,3.153e-6,2.961e-6,2.785e-6,2.625e-6,2.479e-6,2.343e-6,2.219e-6,2.103e-6])[:n,None]
+            A3 = np.array([1.026e-4,2.849e-5,1.360e-5,8.010e-6,5.287e-6,3.752e-6,2.799e-6,2.167e-6,1.726e-6,1.407e-6,1.168e-6,9.847e-7,8.410e-7,7.263e-7,6.334e-7,5.571e-7,4.936e-7,4.403e-7,3.950e-7,3.563e-7,3.230e-7,2.941e-7,2.689e-7,2.467e-7,2.270e-7,2.097e-7,1.943e-7,1.804e-7,1.680e-7,1.568e-7,1.466e-7,1.375e-7,1.291e-7,1.214e-7,1.145e-7,1.080e-7,1.022e-7,9.673e-8,9.169e-8])[:n,None]
+            
+            tau = np.outer(1/lines,self.wavred)
+            #print(tau)
 
-            # Transmission shortward of Lyman-gamma
-            scale = np.zeros_like(self.flux)
-            wlim = 972.0
-            zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
-            scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
-            scale = np.exp(-0.056*scale)
-            self.flux = scale * self.flux
-            self.host_galaxy_flux = scale * self.host_galaxy_flux
+            c0 = (tau <1.) | (tau>(1.+self.z))
+            c1 = (tau<2.2) 
+            c2 = (tau<=5.7) & (tau>=2.2)
+            c3 = (tau>5.7) 
 
-            # Transmission shortward of Lyman-beta
-            scale = np.zeros_like(self.flux)
-            wlim = 1026.0
-            zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
-            scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
-            scale = np.exp(-0.16*scale)
-            self.flux = scale * self.flux
-            self.host_galaxy_flux = scale * self.host_galaxy_flux
+            #tau[c1]=np.multiply(tau[c1]**1.2,A1[:,None])
+            #tau[c2]=np.multiply(tau[c2]**3.7,A2[:,None])
+            #tau[c3]=np.multiply(tau[c3]**5.5,A3[:,None])
 
-            # Transmission shortward of Lyman-alpha
-            scale = np.zeros_like(self.flux)
-            wlim = 1216.0
-            zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
-            scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
-            scale = np.exp(-scale)
-            self.flux = scale * self.flux
-            self.host_galaxy_flux = scale * self.host_galaxy_flux
 
+            #np.select([c1, c2, c3], [A1 * (wv_array / np.array(lines))**1.2, A2 * (wv_array / np.array(lines))**3.7, A3 * (wv_array / np.array(lines))**5.5])
+            #plt.plot(wvarray,np.sum(tau,axis=0))
+
+
+            #np.putmask(tau,tau<1.,0)
+            np.putmask(tau,c1,np.multiply(tau**1.2,A1))
+            np.putmask(tau,c2 ,np.multiply(tau**3.7,A2))
+            np.putmask(tau,c3 ,np.multiply(tau**5.5,A3))
+            np.putmask(tau,c0,0.)
+
+            scale = np.sum(tau,axis=0)
+            
+            self.flux = np.exp(-scale)*self.flux
+            self.host_galaxy_flux = scale*self.host_galaxy_flux
+          
+        elif absmod=='madau+1995':
+            mlines = np.array([1215.67, 1025.72, 972.537, 949.743])
+            mA = np.array([0.0036,1.7e-3,1.2e-3,9.3e-4])[:,None]
+            ratio = np.outer(1/mlines,self.wavred)
+            tau = np.zeros_like(ratio)
+
+            for i in range(len(ratio)):
+                r = ratio[i]
+                c0 =  (self.wavred<=mlines[i]*(1+self.z))
+                tau[i][c0]=(r**3.46*mA[i])[c0]
+           
+            su = np.sum(tau,axis=0)
+            su[self.wavred<912*(1+self.z)]=np.inf
+
+            scale = np.exp(-su)
+            
+            self.flux = scale*(self.flux)
+            self.host_galaxy_flux = scale*self.host_galaxy_flux
+              
+
+	     
+		
 
 if __name__ == '__main__':
 
