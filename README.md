@@ -2,6 +2,28 @@
 # qsogen <a href="https://ascl.net/2205.003"><img src="https://img.shields.io/badge/ascl-2205.003-blue.svg?colorB=262255" alt="ascl:2205.003" /></a>
 
 This fork contains changes made for my personal use of the code.  Use at your own risk.
+
+Changes include:
+- made pip installable via "pip install git+https://github.com/katkauma/qsogen_kk.git" (installs as qsogen)
+- added more of the swire galaxy templates, with names:
+
+        elliptical_swire_2gyr.sed
+        elliptical_swire_5gyr.sed
+        elliptical_swire_13gyr.sed
+        spiral_sqire_s0.sed (*default)
+        spiral_sqire_sa.sed
+        spiral_sqire_sb.sed
+        spiral_sqire_sc.sed
+        spiral_sqire_sd.sed
+        spiral_sqire_sdm.sed
+        spiral_sqire_spi4.sed
+- allows the chance to use different IGM absorption models through the "absmod" parameter in the Quasar_sed class.  This also works for quasar models and colours.  Options include:
+
+        becker+2013 (original implementation)
+        madau+1995
+        inoue+2014 (new default)
+ 
+
 Original readme below:
 
 ------------
