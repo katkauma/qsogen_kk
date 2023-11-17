@@ -312,7 +312,7 @@ class Quasar_sed:
             self.flux[:lylim] = 0.0
             self.host_galaxy_flux[:lylim] = 0.0
             # Then add in Ly forest absorption at z>1.4
-            self.lyman_forest(absmod=absmod)
+            self.lyman_forest()
 
         # redshift spectrum
         
