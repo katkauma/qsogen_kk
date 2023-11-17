@@ -135,7 +135,6 @@ class Quasar_sed:
                  wavlen=np.logspace(2.95, 4.48, num=20001, endpoint=True),
                  ebv=0.,
                  params=None,
-                 absmod = 'inoue+2014',
                  **kwargs):
         """Initialises an instance of the Quasar SED model.
 
@@ -243,6 +242,9 @@ class Quasar_sed:
         self.host_galaxy_flux = np.zeros_like(self.wavlen)
 
         self.ebv = ebv
+        
+        self.absmod = _params['absmod']
+        
         self.plslp1 = _params['plslp1']
         self.plslp2 = _params['plslp2']
         self.plstep = _params['plstep']
@@ -560,13 +562,9 @@ class Quasar_sed:
         exttmp = self.ebv * (extref + R)
         self.flux = self.flux*10.0**(-exttmp/2.5)
 
-    def lyman_forest(self,absmod='inoue+2014'):
+    def lyman_forest(self):
         
-        absmodels = {'dpl':tau_eff_dpl,
-                     'becker+2013': tau_eff_becker2013,
-                     'inoue+2014': None}
-        
-        if absmod == 'dpl' or absmod == 'becker+2013':
+        if self.absmod == 'dpl' or self.absmod == 'becker+2013':
             tau_eff = absmodels[absmod]
             lyseries ={0: [1215.67,1],
 	                1: [1025.72,0.19005811214447021],
@@ -581,7 +579,7 @@ class Quasar_sed:
 	            self.flux = scale * self.flux
 	            self.host_galaxy_flux = scale * self.host_galaxy_flux
             
-        elif absmod=='inoue+2014':
+        elif self.absmod=='inoue+2014':
             n = 15
             lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])[:n]
             A1 = np.array([1.690e-2,4.692e-3,2.239e-3,1.319e-3,8.707e-4,6.178e-4,4.609e-4,3.569e-4,2.843e-4,2.318e-4,1.923e-4,1.622e-4,1.385e-4,1.196e-4,1.043e-4,9.174e-5,8.128e-5,7.251e-5,6.505e-5,5.868e-5,5.319e-5,4.843e-5,4.427e-5,4.063e-5,3.738e-5,3.454e-5,3.199e-5,2.971e-5,2.766e-5,2.582e-5,2.415e-5,2.263e-5,2.126e-5,2.000e-5,1.885e-5,1.779e-5,1.682e-5,1.593e-5,1.510e-5])[:n,None]
@@ -616,7 +614,7 @@ class Quasar_sed:
             self.flux = np.exp(-scale)*self.flux
             self.host_galaxy_flux = scale*self.host_galaxy_flux
           
-        elif absmod=='madau+1995':
+        elif self.absmod=='madau+1995':
             mlines = np.array([1215.67, 1025.72, 972.537, 949.743])
             mA = np.array([0.0036,1.7e-3,1.2e-3,9.3e-4])[:,None]
             ratio = np.outer(1/mlines,self.wavred)
