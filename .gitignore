@@ -1,9 +1,4 @@
-# symlinks
-data
-vault
 
-# data files
-*.fits
 
 # Editors
 .vscode/
