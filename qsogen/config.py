@@ -13,17 +13,20 @@ Edit 2021 July: v20210625 emline_templates and associated model params
 Edit 2022 May: update reference to published paper 2021MNRAS.508..737T
 """
 import numpy as np
+import os
 
-f1 = '/data/ktk25/qsogen_kk/qsosed_emlines_20210625.dat'
+install_path = os.path.dirname(os.path.abspath(__file__))
+
+f1 = install_path+'/data/qsosed_emlines_20210625.dat'
 emline_template = np.genfromtxt(f1, unpack=True)
 # wav, median_emlines, continuum, peaky_line, windy_lines, narrow_lines
 
-f2 = '/data/ktk25/qsogen_kk/S0_template_norm.sed'
+f2 = install_path+'/galaxy_templates/spiral_swire_s0.sed'
 galaxy_template = np.genfromtxt(f2, unpack=True)
 # S0 galaxy template from SWIRE
 # https://ui.adsabs.harvard.edu/abs/2008MNRAS.386..697R/
 
-f3 = '/data/ktk25/qsogen_kk/pl_ext_comp_03.sph'
+f3 = install_path+'/data/pl_ext_comp_03.sph'
 reddening_curve = np.genfromtxt(f3, unpack=True)
 # Extinction curve, format: [lambda, E(lambda-V)/E(B-V)]
 # Recall flux_reddened(lambda) = flux(lambda)*10^(-A(lambda)/2.5)
