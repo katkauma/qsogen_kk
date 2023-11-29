@@ -456,19 +456,34 @@ def sed2mags(filters, waves, fluxes, responses):
         return(mags)
         
 def get_fluxes(redshifts,
-             filters=['SDSS_u_AB',
-                      'SDSS_g_AB',
-                      'SDSS_r_AB',
-                      'SDSS_i_AB',
-                      'SDSS_z_AB',
-                      'UKIDSS_Y_Vega',
-                      'UKIDSS_J_Vega',
-                      'UKIDSS_H_Vega',
-                      'UKIDSS_K_Vega',
-                      'WISE_W1_Vega',
-                      'WISE_W2_Vega'],
-              unit = 'jy'
-             **kwargs):
+				filters=['SDSS_u_AB',
+				'SDSS_g_AB',
+				'SDSS_r_AB',
+				'SDSS_i_AB',
+				'SDSS_z_AB',
+				'UKIDSS_Y_Vega',
+				'UKIDSS_J_Vega',
+				'UKIDSS_H_Vega',
+				'UKIDSS_K_Vega',
+				'WISE_W1_Vega',
+				'WISE_W2_Vega'],
+				**kwargs):
+	mags = get_mags(redshifts,filters,**kwargs)
+	
+	#check if any Vega filters are being used, and if so convert to AB mag
+	if any('Vega' in band for band in filters):
+		for i, band in enumerate(filters):
+			if 'Vega' in band:
+				band_ab = band.replace('Vega','AB')
+				mags[i]+= -2.5*np.log10(zeropoints[band_ab]/zeropoints[band])
+			
+		fluxes = 3631*10**mags
+		return fluxes
+	
+	for i, band in enumerate(filters):
+		
+
+		
 
 
 def produce_zeropoints(system='Vega',
