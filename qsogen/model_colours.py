@@ -59,13 +59,13 @@ Vega_zeropoints = dict(
     DECam_i_Vega=1.283454e-02,
     DECam_z_Vega=9.031628e-03,
     DECam_Y_Vega=3.316464e-03,
-    HSC_g_Vega=1.881597e-02,
-    HSC_r_Vega=1.608603e-02,
-    HSC_r2_Vega=2.291566e-02,
-    HSC_i_Vega=8.728089e-03,
-    HSC_i2_Vega=1.396346e-02,
-    HSC_z_Vega=3.394019e-03,
-    HSC_Y_Vega=2.322250e-03,
+    HSC_g_Vega=1.497881e-02,
+    HSC_r_Vega=1.150771e-02,
+    HSC_r2_Vega=1.270496e-02,
+    HSC_i_Vega=7.319484e-03,
+    HSC_i2_Vega=7.188806e-03,
+    HSC_z_Vega=2.760566e-03,
+    HSC_Y_Vega=1.945597e-03,
     LSST_u_Vega=1.782632e-02,
     LSST_g_Vega=1.423635e-01,
     LSST_r_Vega=9.468552e-02,
@@ -89,10 +89,9 @@ Vega_zeropoints = dict(
     WISE_W2_Vega=1.156727e-03,
     WISE_W3_Vega=3.901671e-04,
     WISE_W4_Vega=4.489671e-05,
-    BOK_g_AB=1.399249e-02,
-    BOK_r_AB=1.142863e-02,
-    MzLS_z_AB=7.589110e-03,
-
+    BOK_g_Vega=1.535034e-02,
+    BOK_r_Vega=9.710702e-03,
+    MzLS_z_Vega=4.706509e-03,
 )
 AB_zeropoints = dict(
     GALEX_NUV_AB=2.143184e+00,
@@ -108,13 +107,13 @@ AB_zeropoints = dict(
     DECam_i_AB=1.868959e-02,
     DECam_z_AB=1.455719e-02,
     DECam_Y_AB=5.599771e-03,
-    HSC_g_AB=1.714996e-02,
-    HSC_r_AB=1.837621e-02,
-    HSC_r2_AB=2.615511e-02,
-    HSC_i_AB=1.253355e-02,
-    HSC_i2_AB=2.011298e-02,
-    HSC_z_AB=5.445445e-03,
-    HSC_Y_AB=3.848121e-03,
+    HSC_g_AB=1.364416e-02,
+    HSC_r_AB=1.313723e-02,
+    HSC_r2_AB=1.450169e-02,
+    HSC_i_AB=1.044899e-02,
+    HSC_i2_AB=1.033459e-02,
+    HSC_z_AB=4.426118e-03,
+    HSC_Y_AB=3.224177e-03,
     LSST_u_AB=3.219424e-02,
     LSST_g_AB=1.298923e-01,
     LSST_r_AB=1.083751e-01,
@@ -140,59 +139,9 @@ AB_zeropoints = dict(
     WISE_W4_AB=2.006357e-02,
     BOK_g_AB=1.399249e-02,
     BOK_r_AB=1.142863e-02,
-    MzLS_z_AB=7.589110e-03,
+    MzLS_z_AB=7.589110e-03,)
 
-)
 
-lambda_ref= dict(
-    GALEX_NUV_AB=1535.08,
-    GALEX_FUV_AB=2300.78,
-    SDSS_u_AB=3569.62,
-    SDSS_g_AB=4711.99,
-    SDSS_r_AB=6285.95,
-    SDSS_i_AB=7555.08,
-    SDSS_z_AB=8946.71,
-    DECam_u_AB=3814.33,
-    DECam_g_AB=4808.49,
-    DECam_r_AB=6401.57,
-    DECam_i_AB=7814.58,
-    DECam_z_AB=9168.85,
-    DECam_Y_AB=9896.11	,
-    HSC_g_AB=4798.21,
-    HSC_r_AB=6218.44,
-    HSC_r2_AB=6218.44,
-    HSC_i_AB=7727.01, #could not find the lambda ref for HSC i
-    HSC_i2_AB=7727.01,
-    HSC_z_AB=5.445445e-03,
-    HSC_Y_AB=3.848121e-03,
-    LSST_u_AB=3.219424e-02,
-    LSST_g_AB=1.298923e-01,
-    LSST_r_AB=1.083751e-01,
-    LSST_i_AB=8.188370e-02,
-    LSST_z_AB=5.619859e-02,
-    LSST_y_AB=2.718541e-02,
-    Euclid_Y_AB=1.454023e-02,
-    Euclid_J_AB=1.846444e-02,
-    Euclid_H_AB=1.634865e-02,
-    UKIDSS_Z_AB=2.060514e-03,
-    UKIDSS_Y_AB=1.972653e-03,
-    UKIDSS_J_AB=2.739415e-03,
-    UKIDSS_H_AB=4.897400e-03,
-    UKIDSS_K_AB=3.844725e-03,
-    VISTA_Z_AB=1.152809e-02,
-    VISTA_Y_AB=8.005087e-03,
-    VISTA_J_AB=1.255071e-02,
-    VISTA_H_AB=1.793209e-02,
-    VISTA_Ks_AB=1.460059e-02,
-    WISE_W1_AB=2.134738e-02,
-    WISE_W2_AB=2.450814e-02,
-    WISE_W3_AB=4.859685e-02,
-    WISE_W4_AB=2.006357e-02,
-    BOK_g_AB=1.399249e-02,
-    BOK_r_AB=1.142863e-02,
-    MzLS_z_AB=7.589110e-03,
-
-)
 
 zeropoints = {**Vega_zeropoints, **AB_zeropoints}
 
@@ -436,14 +385,6 @@ def get_mags(redshifts,
 
     return(model_mags)
 
-#added by katherine
-def sed2fluxes(filters,waves,fluxes,responses):
-        flux_bands = np.full(len(waves),np.nan)
-       
-        for i in range(len(waves)):
-           flux = simps(waves[i]*responses[i]*fluxes[i], waves[i])
-           flux_bands[i] = flux
-        return(flux_bands)
 
 def sed2mags(filters, waves, fluxes, responses):
 
@@ -527,7 +468,10 @@ def produce_zeropoints(system='Vega',
                                 'WISE_W1',
                                 'WISE_W2',
                                 'WISE_W3',
-                                'WISE_W4']):
+                                'WISE_W4',
+                                'BOK_g',
+								'BOK_r',
+								'MzLS_z']):
     """Produce the Vega and AB zero points for Sloan, UKIDSS and WISE.
     Zero points are pre-computed to save time.
     If you want to compute model photometry in additional filters, first use
@@ -588,13 +532,13 @@ DECam_r 0.18169480639014704
 DECam_i 0.40804866596053224
 DECam_z 0.5182787728252919
 DECam_Y 0.5687374491977623
-HSC_g -0.10065875128954174
-HSC_r 0.14451767734892634
-HSC_r2 0.14356045219765853
-HSC_i 0.39288732951464894
-HSC_i2 0.3962084411908027
-HSC_z 0.5132977668531478
-HSC_Y 0.5483493698742289
+HSC_g -0.10132627097174592
+HSC_r 0.14378723616842076
+HSC_r2 0.1436132874753628
+HSC_i 0.3864846194174701
+HSC_i2 0.3940912199785226
+HSC_z 0.5125621330816216
+HSC_Y 0.5484149690829487
 LSST_u 0.6417911975387529
 LSST_g -0.09953812415364369
 LSST_r 0.14661485653583178
@@ -618,4 +562,8 @@ WISE_W1 2.6787715820675913
 WISE_W2 3.3151986991103968
 WISE_W3 5.238393684944
 WISE_W4 6.625484235337513
+BOK_g -0.10055748514168539
+BOK_r 0.17685886485765456
+MzLS_z 0.518729885576661
+
 """
