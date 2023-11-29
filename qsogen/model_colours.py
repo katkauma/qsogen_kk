@@ -475,7 +475,7 @@ def get_fluxes(redshifts,
 		for i, band in enumerate(filters):
 			if 'Vega' in band:
 				band_ab = band.replace('Vega','AB')
-				mags[i]+= -2.5*np.log10(zeropoints[band_ab]/zeropoints[band])
+				mags[i]+= 2.5*np.log10(zeropoints[band_ab]/zeropoints[band])
 			
 	fluxes = 3631*10**(-0.4*mags)
 	return fluxes
