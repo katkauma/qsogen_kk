@@ -468,7 +468,7 @@ def get_fluxes(redshifts,
 				'WISE_W1_Vega',
 				'WISE_W2_Vega'],
 				**kwargs):
-	mags = get_mags(redshifts,filters,**kwargs)
+	mags = get_mags(redshifts,filters,**kwargs)[0]
 	
 	#check if any Vega filters are being used, and if so convert to AB mag
 	if any('Vega' in band for band in filters):
