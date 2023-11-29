@@ -144,6 +144,56 @@ AB_zeropoints = dict(
 
 )
 
+lambda_ref= dict(
+    GALEX_NUV_AB=1535.08,
+    GALEX_FUV_AB=2300.78,
+    SDSS_u_AB=3569.62,
+    SDSS_g_AB=4711.99,
+    SDSS_r_AB=6285.95,
+    SDSS_i_AB=7555.08,
+    SDSS_z_AB=8946.71,
+    DECam_u_AB=3814.33,
+    DECam_g_AB=4808.49,
+    DECam_r_AB=6401.57,
+    DECam_i_AB=7814.58,
+    DECam_z_AB=9168.85,
+    DECam_Y_AB=9896.11	,
+    HSC_g_AB=4798.21,
+    HSC_r_AB=6218.44,
+    HSC_r2_AB=6218.44,
+    HSC_i_AB=7727.01, #could not find the lambda ref for HSC i
+    HSC_i2_AB=7727.01,
+    HSC_z_AB=5.445445e-03,
+    HSC_Y_AB=3.848121e-03,
+    LSST_u_AB=3.219424e-02,
+    LSST_g_AB=1.298923e-01,
+    LSST_r_AB=1.083751e-01,
+    LSST_i_AB=8.188370e-02,
+    LSST_z_AB=5.619859e-02,
+    LSST_y_AB=2.718541e-02,
+    Euclid_Y_AB=1.454023e-02,
+    Euclid_J_AB=1.846444e-02,
+    Euclid_H_AB=1.634865e-02,
+    UKIDSS_Z_AB=2.060514e-03,
+    UKIDSS_Y_AB=1.972653e-03,
+    UKIDSS_J_AB=2.739415e-03,
+    UKIDSS_H_AB=4.897400e-03,
+    UKIDSS_K_AB=3.844725e-03,
+    VISTA_Z_AB=1.152809e-02,
+    VISTA_Y_AB=8.005087e-03,
+    VISTA_J_AB=1.255071e-02,
+    VISTA_H_AB=1.793209e-02,
+    VISTA_Ks_AB=1.460059e-02,
+    WISE_W1_AB=2.134738e-02,
+    WISE_W2_AB=2.450814e-02,
+    WISE_W3_AB=4.859685e-02,
+    WISE_W4_AB=2.006357e-02,
+    BOK_g_AB=1.399249e-02,
+    BOK_r_AB=1.142863e-02,
+    MzLS_z_AB=7.589110e-03,
+
+)
+
 zeropoints = {**Vega_zeropoints, **AB_zeropoints}
 
 
@@ -306,7 +356,6 @@ def get_mags(redshifts,
                       'UKIDSS_K_Vega',
                       'WISE_W1_Vega',
                       'WISE_W2_Vega'],
-             get_flux=False,
              **kwargs):
     """Get synthetic magnitudes from quasar model.
 
@@ -316,6 +365,8 @@ def get_mags(redshifts,
         List or array of redshifts
     filters : array, optional
         List of filter passbands to compute colours between.
+    get_fluxes: Bool, optional
+    	If true, returns the fluxes in terms of f_nu(Jy). assumes filters are all AB mags.
     **kwargs
         Arguments to pass to Quasar_sed.
 
@@ -365,11 +416,7 @@ def get_mags(redshifts,
             # Create individual arrays with the flux in each observed passband
             fluxes = np.split(ordered_flux[isort], split_indices)
             
-            #added by katherine
-            if get_flux:
-                model_mags.append(sed2fluxes(filters, waves, fluxes, responses))
-            else:
-                model_mags.append(sed2mags(filters, waves, fluxes, responses))
+            model_mags.append(sed2mags(filters, waves, fluxes, responses))
 
     except TypeError:
         z = float(redshifts)
@@ -382,14 +429,12 @@ def get_mags(redshifts,
         # Create individual arrays with the flux in each observed passband
         fluxes = np.split(ordered_flux[isort], split_indices)
 
-        #added by katherine
-        if get_flux:
-            model_mags.append(sed2fluxes(filters, waves, fluxes, responses))
+        model_mags.append(sed2mags(filters, waves, fluxes, responses))
+        
+    #added by katherine
+    model_mags = np.array(model_mags)
 
-        else:
-            model_mags.append(sed2mags(filters, waves, fluxes, responses))
-
-    return(np.array(model_mags))
+    return(model_mags)
 
 #added by katherine
 def sed2fluxes(filters,waves,fluxes,responses):
@@ -409,6 +454,21 @@ def sed2mags(filters, waves, fluxes, responses):
             mags[i] = -2.5*np.log10(flux/zeropoints[filters[i]])
 
         return(mags)
+        
+def get_fluxes(redshifts,
+             filters=['SDSS_u_AB',
+                      'SDSS_g_AB',
+                      'SDSS_r_AB',
+                      'SDSS_i_AB',
+                      'SDSS_z_AB',
+                      'UKIDSS_Y_Vega',
+                      'UKIDSS_J_Vega',
+                      'UKIDSS_H_Vega',
+                      'UKIDSS_K_Vega',
+                      'WISE_W1_Vega',
+                      'WISE_W2_Vega'],
+              unit = 'jy'
+             **kwargs):
 
 
 def produce_zeropoints(system='Vega',
