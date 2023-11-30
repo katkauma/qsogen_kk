@@ -567,7 +567,7 @@ class Quasar_sed:
     def lyman_forest(self):
         
         if self.absmod == 'dpl' or self.absmod == 'becker+2013':
-            tau_eff = absmodels[absmod]
+            tau_eff = absmodels[self.absmod]
             lyseries ={0: [1215.67,1],
 	                1: [1025.72,0.19005811214447021],
 	                2: [972.537,0.06965703475200001]}
