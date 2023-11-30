@@ -103,6 +103,8 @@ def tau_eff_becker2013(z):
     
     return np.where(tau_eff < 0, 0., tau_eff)
 
+absmodels = dict('dpl'=tau_eff_dpl,
+				 'becker+2013'=tau_eff_becker2013)
 
 
 class Quasar_sed:
