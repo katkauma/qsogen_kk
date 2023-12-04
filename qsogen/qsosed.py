@@ -63,30 +63,14 @@ def bb(tbb, wav):
 # different tau models
 
 def tau_eff_dpl(z):
-    #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
-    # using the coefficient values from bosman et al 2022
-    '''
-    tau0=0.3
-    beta=13.7
-    C=1.35
-    z0=4.8'''
-
-    #tau_eff = tau0*((1+z)/(1+z0))**beta+C
-    #tau_eff = 0.751*((1 + z) / (1 + 3.5))**2.90 - 0.132
-    
-    #my smoothly varying double power law
-    
-       
     A = 2.13369912
     z_b = 5.17124349
     a_1 = -2.32643103
     a_2 = -7.01644977
     delta = 0.05886805
     c = -0.09805639
-    
-    tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)+c
-	
 
+    tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)+c
     return np.where(tau_eff < 0, 0., tau_eff)
 
 def tau_eff_becker2013(z):
@@ -104,7 +88,7 @@ def tau_eff_becker2013(z):
     return np.where(tau_eff < 0, 0., tau_eff)
 
 absmodels = {'dpl':tau_eff_dpl,
-			 'becker+2013':tau_eff_becker2013}
+             'becker+2013':tau_eff_becker2013}
 
 
 class Quasar_sed:
@@ -566,20 +550,36 @@ class Quasar_sed:
 
     def lyman_forest(self):
         
-        if self.absmod == 'dpl' or self.absmod == 'becker+2013':
+        if self.absmod == 'becker+2013':
             tau_eff = absmodels[self.absmod]
             lyseries ={0: [1215.67,1],
-	                1: [1025.72,0.19005811214447021],
-	                2: [972.537,0.06965703475200001]}
+                    1: [1025.72,0.19005811214447021],
+                    2: [972.537,0.06965703475200001]}
             for i in lyseries.keys():
-	            scale = np.zeros_like(self.flux)
-	            wlim = lyseries[i][0]
-	            ratio = lyseries[i][1]
-	            zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
-	            scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
-	            scale = np.exp(-ratio*scale)
-	            self.flux = scale * self.flux
-	            self.host_galaxy_flux = scale * self.host_galaxy_flux
+                scale = np.zeros_like(self.flux)
+                wlim = lyseries[i][0]
+                ratio = lyseries[i][1]
+                zlook = ((1.0+self.z) * self.wavlen)/wlim - 1.0
+                scale[self.wavlen < wlim] = tau_eff(zlook[self.wavlen < wlim])
+                scale = np.exp(-ratio*scale)
+                self.flux = scale * self.flux
+                self.host_galaxy_flux = scale * self.host_galaxy_flux
+        elif self.absmod == 'dpl':
+            tau_eff = absmodels[self.absmod]
+            lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])
+            ratios = np.array([1.690e-2, 4.692e-3, 2.239e-3, 1.319e-3, 8.707e-4, 6.178e-4, 4.609e-4, 3.569e-4, 2.843e-4, 2.318e-4, 1.923e-4, 1.622e-4, 1.385e-4, 1.196e-4, 1.043e-4 ,9.174e-5, 8.128e-5, 7.251e-5, 6.505e-5, 5.868e-5, 5.319e-5, 4.843e-5, 4.427e-5 ,4.063e-5, 3.738e-5, 3.454e-5, 3.199e-5, 2.971e-5, 2.766e-5, 2.582e-5, 2.415e-5, 2.263e-5, 2.126e-5, 2.000e-5, 1.885e-5, 1.779e-5, 1.682e-5, 1.593e-5, 1.510e-5])/1.690e-2
+            
+            for i, line in enumerate(lines):
+                scale = np.zeros_like(self.flux)
+                wlim = line
+                r = ratios[i]
+                zlook = ((1.+self.z)*self.wavlen)/wlim -1.
+                scale[self.wavlen<wlim] = tau_eff(zlook[self.wavlen<wlim])
+                scale = np.exp(-r*scale)
+                self.flux = scale*self.flux
+                self.host_galaxy_flux = scale*self.host_galaxy_flux
+            
+            
             
         elif self.absmod=='inoue+2014':
             n = 38
@@ -636,8 +636,8 @@ class Quasar_sed:
             self.host_galaxy_flux = scale*self.host_galaxy_flux
               
 
-	     
-		
+         
+        
 
 if __name__ == '__main__':
 
