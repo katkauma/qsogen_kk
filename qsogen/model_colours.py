@@ -13,8 +13,7 @@ Edit 2022 July 29 to add GALEX NUV and FUV filters
 #  (http://svo2.cab.inta-csic.es/theory/fps/) supported from
 #  the Spanish MINECO through grant AyA2014-55216
 
-Any filter of interest needs to be saved in the same directory as e.g.
-'SDSS_u.filter'
+Any filter of interest should be saved in the filters/ folder eg., filters/SDSS_u.filter
 
 Default filters are SDSS AB, UKIDSS Vega, WISE Vega ugrizYJHKW12
 
@@ -43,6 +42,28 @@ from qsogen.qsosed import Quasar_sed
 import os
 
 install_path = os.path.dirname(os.path.abspath(__file__))
+
+all_filters = ['GALEX_NUV','GALEX_FUV',
+               
+                'SDSS_u','SDSS_g','SDSS_r','SDSS_i','SDSS_z',
+                
+                'DECam_u','DECam_g','DECam_r','DECam_i','DECam_z','DECam_Y',
+                
+                'HSC_g','HSC_r','HSC_r2','HSC_i','HSC_i2','HSC_z','HSC_Y',
+                
+                'LSST_u','LSST_g','LSST_r','LSST_i','LSST_z','LSST_y',
+                
+                'Euclid_Y','Euclid_J','Euclid_H',
+                
+                'UKIDSS_Z','UKIDSS_Y', 'UKIDSS_J', 'UKIDSS_H','UKIDSS_K',
+                
+                'VISTA_Z','VISTA_Y','VISTA_J','VISTA_H','VISTA_Ks',
+                
+                'WISE_W1','WISE_W2','WISE_W3','WISE_W4',
+                
+                'BOK_g','BOK_r',
+                
+                'MzLS_z']
 
 # assume 2007 Vega spectrum has zero magnitude in all bands
 Vega_zeropoints = dict(
@@ -146,53 +167,59 @@ AB_zeropoints = dict(
 zeropoints = {**Vega_zeropoints, **AB_zeropoints}
 
 
+pivotwv2 = dict(
+    GALEX_NUV=5.293611e+06,
+    GALEX_FUV=2.356469e+06,
+    SDSS_u=1.264872e+07,
+    SDSS_g=2.211349e+07,
+    SDSS_r=3.813791e+07,
+    SDSS_i=5.609555e+07,
+    SDSS_z=8.004292e+07,
+    DECam_u=1.454743e+07,
+    DECam_g=2.312162e+07,
+    DECam_r=4.118621e+07,
+    DECam_i=6.106772e+07,
+    DECam_z=8.406795e+07,
+    DECam_Y=9.793339e+07,
+    HSC_g=2.295522e+07,
+    HSC_r=3.861266e+07,
+    HSC_r2=3.859520e+07,
+    HSC_i=5.911890e+07,
+    HSC_i2=5.980280e+07,
+    HSC_z=7.926532e+07,
+    HSC_Y=9.548639e+07,
+    LSST_u=1.354273e+07,
+    LSST_g=2.287005e+07,
+    LSST_r=3.866125e+07,
+    LSST_i=5.673519e+07,
+    LSST_z=7.543031e+07,
+    LSST_y=9.467403e+07,
+    Euclid_Y=1.173135e+08,
+    Euclid_J=1.859249e+08,
+    Euclid_H=3.083767e+08,
+    UKIDSS_Z=7.790447e+07,
+    UKIDSS_Y=1.063794e+08,
+    UKIDSS_J=1.562799e+08,
+    UKIDSS_H=2.674812e+08,
+    UKIDSS_K=4.865715e+08,
+    VISTA_Z=7.701424e+07,
+    VISTA_Y=1.041830e+08,
+    VISTA_J=1.570095e+08,
+    VISTA_H=2.703097e+08,
+    VISTA_Ks=4.608644e+08,
+    WISE_W1=1.148993e+09,
+    WISE_W2=2.153550e+09,
+    WISE_W3=1.579444e+10,
+    WISE_W4=4.979197e+10,
+    BOK_g=2.274303e+07,
+    BOK_r=4.083468e+07,
+    MzLS_z=8.464611e+07,
+)
+
+###########################################################
+
 wavarrs, resparrs = dict(), dict()
-for band in ['GALEX_NUV',
-             'GALEX_FUV',
-             'SDSS_u',
-             'SDSS_g',
-             'SDSS_r',
-             'SDSS_i',
-             'SDSS_z',
-             'DECam_u',
-             'DECam_g',
-             'DECam_r',
-             'DECam_i',
-             'DECam_z',
-             'DECam_Y',
-             'HSC_g',
-             'HSC_r',
-             'HSC_r2',
-             'HSC_i',
-             'HSC_i2',
-             'HSC_z',
-             'HSC_Y',
-             'LSST_u',
-             'LSST_g',
-             'LSST_r',
-             'LSST_i',
-             'LSST_z',
-             'LSST_y',
-             'Euclid_Y',
-             'Euclid_J',
-             'Euclid_H',
-             'UKIDSS_Z',
-             'UKIDSS_Y',
-             'UKIDSS_J',
-             'UKIDSS_H',
-             'UKIDSS_K',
-             'VISTA_Z',
-             'VISTA_Y',
-             'VISTA_J',
-             'VISTA_H',
-             'VISTA_Ks',
-             'WISE_W1',
-             'WISE_W2',
-             'WISE_W3',
-             'WISE_W4',
-             'BOK_g',
-             'BOK_r',
-             'MzLS_z']:
+for band in all_filters:
     try:
         wavarr, response = np.genfromtxt(install_path+'/filters/'+band+'.filter', unpack=True)
     except OSError:
@@ -314,8 +341,6 @@ def get_mags(redshifts,
         List or array of redshifts
     filters : array, optional
         List of filter passbands to compute colours between.
-    get_fluxes: Bool, optional
-    	If true, returns the fluxes in terms of f_nu(Jy). assumes filters are all AB mags.
     **kwargs
         Arguments to pass to Quasar_sed.
 
@@ -380,10 +405,11 @@ def get_mags(redshifts,
 
         model_mags.append(sed2mags(filters, waves, fluxes, responses))
         
-    #added by katherine
+    #added by katherine, converts list to numpy array
     model_mags = np.array(model_mags)
 
     return(model_mags)
+
 
 
 def sed2mags(filters, waves, fluxes, responses):
@@ -395,84 +421,76 @@ def sed2mags(filters, waves, fluxes, responses):
             mags[i] = -2.5*np.log10(flux/zeropoints[filters[i]])
 
         return(mags)
-        
+    
+    
 def get_fluxes(redshifts,
-				filters=['SDSS_u_AB',
-				'SDSS_g_AB',
-				'SDSS_r_AB',
-				'SDSS_i_AB',
-				'SDSS_z_AB',
-				'UKIDSS_Y_Vega',
-				'UKIDSS_J_Vega',
-				'UKIDSS_H_Vega',
-				'UKIDSS_K_Vega',
-				'WISE_W1_Vega',
-				'WISE_W2_Vega'],
-				**kwargs):
-	mags = get_mags(redshifts,filters,**kwargs)[0]
-	
-	#check if any Vega filters are being used, and if so convert to AB mag
-	if any('Vega' in band for band in filters):
-		for i, band in enumerate(filters):
-			if 'Vega' in band:
-				band_ab = band.replace('Vega','AB')
-				mags[i]+= 2.5*np.log10(zeropoints[band_ab]/zeropoints[band])
-			
-	fluxes = 3631*10**(-0.4*mags)
-	return fluxes
-		
+             filters=['SDSS_u_AB',
+                      'SDSS_g_AB',
+                      'SDSS_r_AB',
+                      'SDSS_i_AB',
+                      'SDSS_z_AB',
+                      'UKIDSS_Y_Vega',
+                      'UKIDSS_J_Vega',
+                      'UKIDSS_H_Vega',
+                      'UKIDSS_K_Vega',
+                      'WISE_W1_Vega',
+                      'WISE_W2_Vega'],
+             units='fnu',
+             **kwargs):
+    """Get synthetic magnitudes from quasar model.
 
-		
+    Parameters
+    ----------
+    redshifts : iterable
+        List or array of redshifts
+    filters : array, optional
+        List of filter passbands to compute colours between.
+    units : string, optional
+        Controls whether fluxes are returned in units of "flam" (ergs s^-1 cm^-1 A^-1) or "fnu" (Jy). Default is "flam".
+    **kwargs
+        Arguments to pass to Quasar_sed.
 
+    Returns
+    -------
+    model_mags : ndarray
+        Array with model magnitudes for each redshift in redshifts.
+
+    Notes
+    -----
+    Wavelength array in Quasar_sed must cover rest-frame 4000-5000 Angstroms,
+    if gflag is set to True.
+    get_mags concatenates and sorts the wavelength arrays of the filter
+    response functions, and uses this as the input wavelength array to
+    Quasar_sed. This is computationally much faster as it means the model is
+    only evaluated at the wavelengths it's actually needed and avoids
+    unnecessary interpolation. However, this can lead to errors if the host
+    galaxy is turned on and an unusually sparse combination of filters is
+    requested.
+    """
+    
+    mags = get_mags(redshifts,
+             filters=filters,
+             **kwargs)
+    
+    fnu = 3631*10**(-0.4*mags)
+    
+    if units=='fnu':
+        return fnu
+    
+    elif units=='flam':
+        pivlam2=np.array([pivotwv2[band.replace('_AB','').replace('_Vega','')] for band in filters])
+        
+        flam = 2.9982e-5*fnu/pivlam2
+        return flam
+            
+    else:
+        raise ValueError("'units' keyword must be 'flam' or 'fnu")
+
+    
 
 def produce_zeropoints(system='Vega',
-                       filters=['GALEX_NUV',
-                                'GALEX_FUV',
-                                'SDSS_u',
-                                'SDSS_g',
-                                'SDSS_r',
-                                'SDSS_i',
-                                'SDSS_z',
-                                'DECam_u',
-                                'DECam_g',
-                                'DECam_r',
-                                'DECam_i',
-                                'DECam_z',
-                                'DECam_Y',
-                                'HSC_g',
-                                'HSC_r',
-                                'HSC_r2',
-                                'HSC_i',
-                                'HSC_i2',
-                                'HSC_z',
-                                'HSC_Y',
-                                'LSST_u',
-                                'LSST_g',
-                                'LSST_r',
-                                'LSST_i',
-                                'LSST_z',
-                                'LSST_y',
-                                'Euclid_Y',
-                                'Euclid_J',
-                                'Euclid_H',
-                                'UKIDSS_Z',
-                                'UKIDSS_Y',
-                                'UKIDSS_J',
-                                'UKIDSS_H',
-                                'UKIDSS_K',
-                                'VISTA_Z',
-                                'VISTA_Y',
-                                'VISTA_J',
-                                'VISTA_H',
-                                'VISTA_Ks',
-                                'WISE_W1',
-                                'WISE_W2',
-                                'WISE_W3',
-                                'WISE_W4',
-                                'BOK_g',
-								'BOK_r',
-								'MzLS_z']):
-    """Produce the Vega and AB zero points for Sloan, UKIDSS and WISE.
+                       filters=all_filters):
+    """Produce the Vega and AB zero points for filters listed in all_filters variable.
     Zero points are pre-computed to save time.
     If you want to compute model photometry in additional filters, first use
     this function to compute their zeropoints and add to dictionaries above.
@@ -502,11 +520,39 @@ def produce_zeropoints(system='Vega',
     else:
         raise Exception('System must be "Vega" or "AB"')
     print(')')
+    
+
+    
+    
+def produce_pivotwv2(filters=all_filters):
+    """Produce the inverse squared pivot wavelength for each filter (lambda_pivot**-2). Used in converting between fnu and flambda in get_mags. 
+    If you want to compute model photometry in additional filters, first use
+    this function to compute their normalisation constants and add to dictionaries above.
+    """
+
+    waves, responses = [], []
+    for band in filters:
+        waves.append(wavarrs[band])
+        responses.append(resparrs[band])
+    print('pivotwv2 = dict(')
+
+
+    for i in range(len(filters)):
+        F = (simps(waves[i]*responses[i], waves[i])/simps(responses[i]*waves[i]**-1,waves[i]))
+        
+        
+        print('    ' + filters[i] + '={:.6e},'.format(F))
+        
+    print(')')
+
 
 
 if __name__ == '__main__':
     produce_zeropoints('Vega')
     produce_zeropoints('AB')
+    
+    produce_pivotwv2()
+    
     print(
         'Derived delta_m = m_AB - m_Vega conversions are as follows, assuming')
     print(
