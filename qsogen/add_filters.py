@@ -89,7 +89,7 @@ if __name__ == '__main__':
     newfilters = list(set(flist)-set(filterinfo['Pivot_wv'].keys()))
     missingfilters = list(set(filterinfo['Pivot_wv'].keys())-set(flist)) # filters in filterinfo.json that do not have response curves
     
-    filterlist = newfilters
+    filterlist = flist
     
 
     wavarrs, resparrs = dict(), dict()
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         print('\t'+band)
     print('\n')
     with open("filterinfo.json","w") as file:
-        json.dump(filterinfo,file,indent=4)
+        json.dump(filterinfo,file,indent=4,sort_keys=True)
     
 
 
