@@ -2,7 +2,6 @@ import numpy as np
 from scipy.integrate import simps
 import os
 import json
-import pprint
 import glob
 
 install_path = os.path.dirname(os.path.abspath(__file__))
@@ -62,7 +61,7 @@ def produce_pivotwv(filters=flist):
     pivot_dict ={}
 
     for i in range(len(filters)):
-        F = np.sqrt(simps(waves[i]*responses[i], waves[i])/simps(responses[i]*waves[i]**-1,waves[i]))
+        F = np.sqrt(simps(waves[i]*responses[i], waves[i])/simps(responses[i]/waves[i],waves[i]))
         pivot_dict[filters[i]]=float('{:.7g}'.format(F))
         
         
@@ -123,9 +122,7 @@ if __name__ == '__main__':
         del filterinfo['Pivot_wv'][band]
         del filterinfo['Vega_2_AB'][band]
         
-                  
-    #print('Information in filterinfo.json: \n')
-    #pprint.pprint(filterinfo,indent=4)
+
     print('Updated or added the following filters in filterinfo.json:')
     for band in filterlist:
         print('\t'+band)
