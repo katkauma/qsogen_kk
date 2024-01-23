@@ -319,16 +319,16 @@ def get_fluxes(redshifts,
     
     fnu = 3631*10**(-0.4*mags)
     
-    if units=='fnu':
+    if unit=='fnu':
         return fnu
     
-    elif units=='flam':
+    elif unit=='flam':
         pivlam=np.array([pivotwv[band.replace('_AB','').replace('_Vega','')] for band in filters])
         
         flam = 2.9982e-5*fnu/(pivlam*pivlam)
         return flam
             
     else:
-        raise ValueError("'units' keyword must be 'flam' or 'fnu")
+        raise ValueError("'unit' keyword must be 'flam' or 'fnu")
 
  
