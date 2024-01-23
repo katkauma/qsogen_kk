@@ -248,6 +248,8 @@ def get_mags(redshifts,
         
     #added by katherine, converts list to numpy array
     model_mags = np.array(model_mags)
+    if len(redshifts)==1:
+        model_mags=model_mags[0]
 
     return(model_mags)
 
@@ -318,7 +320,7 @@ def get_fluxes(redshifts,
         return fnu
     
     elif units=='flam':
-        pivlam2=np.array([pivotwv2[band.replace('_AB','').replace('_Vega','')] for band in filters])
+        pivlam=np.array([pivotwv[band.replace('_AB','').replace('_Vega','')] for band in filters])
         
         flam = 2.9982e-5*fnu/(pivlam*pivlam)
         return flam
