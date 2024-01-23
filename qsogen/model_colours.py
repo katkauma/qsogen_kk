@@ -52,6 +52,7 @@ with open(install_path+'/filterinfo.json','r') as file:
 Vega_zeropoints=filterinfo['Vega_zeropoints']
 AB_zeropoints = filterinfo['AB_zeropoints']
 pivotwv = filterinfo['Pivot_wv']
+Vega_2_AB = filterinfo['Vega_2_AB']
 
 zeropoints = {**Vega_zeropoints, **AB_zeropoints}
 
@@ -176,6 +177,7 @@ def get_mags(redshifts,
                       'UKIDSS_K_Vega',
                       'WISE_W1_Vega',
                       'WISE_W2_Vega'],
+             flux = None,
              **kwargs):
     """Get synthetic magnitudes from quasar model.
 
@@ -185,6 +187,8 @@ def get_mags(redshifts,
         List or array of redshifts
     filters : array, optional
         List of filter passbands to compute colours between.
+    flux: None, 'fnu', or 'flam'
+        key to get flux, default value of 'None' returns magnitudes. 'fnu' returns flux in Janskies, 'flam' returns flux in ergs s^-1 cm^-2 Angstrom^-1. Only works if filters are all AB magnitudes. Will also take 'AB' or 'Vega', but this has the same effect as None.
     **kwargs
         Arguments to pass to Quasar_sed.
 
@@ -253,8 +257,28 @@ def get_mags(redshifts,
     model_mags = np.array(model_mags)
     if isinstance(redshifts,float):
         model_mags=model_mags[0]
+        
+    if flux in [None,'AB','Vega']:
+        return(model_mags)
+    
+    elif flux in ['flam','fnu']:
+        # convert all modelmags to AB if not already
+        bandname, magtype = np.array([band.rsplit('_',1) for band in filters]).transpose()
+        vegamask = magtype=='Vega'
+        
+        model_mags[vegamask]+=[Vega_2_AB[band] for band in bandname[vegamask]]
 
-    return(model_mags)
+        fnu = 3631*10**(-0.4*model_mags)
+        
+        if flux=='fnu':
+            return fnu
+        
+        elif flux=='flam':
+            pivlam=np.array([pivotwv[band.replace('_AB','').replace('_Vega','')] for band in filters])
+            
+            flam = 2.9982e-5*fnu/(pivlam*pivlam)
+            return flam
+
 
 
 def sed2mags(filters, waves, fluxes, responses):
@@ -266,69 +290,6 @@ def sed2mags(filters, waves, fluxes, responses):
             mags[i] = -2.5*np.log10(flux/zeropoints[filters[i]])
 
         return(mags)
-    
-    
-def get_fluxes(redshifts,
-             filters=['SDSS_u_AB',
-                      'SDSS_g_AB',
-                      'SDSS_r_AB',
-                      'SDSS_i_AB',
-                      'SDSS_z_AB',
-                      'UKIDSS_Y_Vega',
-                      'UKIDSS_J_Vega',
-                      'UKIDSS_H_Vega',
-                      'UKIDSS_K_Vega',
-                      'WISE_W1_Vega',
-                      'WISE_W2_Vega'],
-             unit='fnu',
-             **kwargs):
-    """Get synthetic magnitudes from quasar model.
 
-    Parameters
-    ----------
-    redshifts : iterable
-        List or array of redshifts
-    filters : array, optional
-        List of filter passbands to compute colours between.
-    units : string, optional
-        Controls whether fluxes are returned in units of "flam" (ergs s^-1 cm^-1 A^-1) or "fnu" (Jy). Default is "flam".
-    **kwargs
-        Arguments to pass to Quasar_sed.
-
-    Returns
-    -------
-    model_mags : ndarray
-        Array with model magnitudes for each redshift in redshifts.
-
-    Notes
-    -----
-    Wavelength array in Quasar_sed must cover rest-frame 4000-5000 Angstroms,
-    if gflag is set to True.
-    get_mags concatenates and sorts the wavelength arrays of the filter
-    response functions, and uses this as the input wavelength array to
-    Quasar_sed. This is computationally much faster as it means the model is
-    only evaluated at the wavelengths it's actually needed and avoids
-    unnecessary interpolation. However, this can lead to errors if the host
-    galaxy is turned on and an unusually sparse combination of filters is
-    requested.
-    """
-    
-    mags = get_mags(redshifts,
-             filters=filters,
-             **kwargs)
-    
-    fnu = 3631*10**(-0.4*mags)
-    
-    if unit=='fnu':
-        return fnu
-    
-    elif unit=='flam':
-        pivlam=np.array([pivotwv[band.replace('_AB','').replace('_Vega','')] for band in filters])
-        
-        flam = 2.9982e-5*fnu/(pivlam*pivlam)
-        return flam
-            
-    else:
-        raise ValueError("'unit' keyword must be 'flam' or 'fnu")
 
  

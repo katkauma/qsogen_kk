@@ -73,7 +73,7 @@ def produce_pivotwv(filters=flist):
 def vega2ab(vega_zp,ab_zp,filters=flist):
     vega2ab_dict = {}
     for band in filters:
-        vega2ab_dict[band]= float(round(-2.5*np.log10(vega_zp[band+'_Vega']/ab_zp[band+'_AB']),4))
+        vega2ab_dict[band]= -2.5*np.log10(vega_zp[band+'_Vega']/ab_zp[band+'_AB'])
     return vega2ab_dict
 
 
