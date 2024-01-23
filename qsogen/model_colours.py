@@ -157,6 +157,9 @@ def get_colours(redshifts,
                                                waves,
                                                fluxes,
                                                responses)))
+        
+    if isinstance(redshifts,float):
+        model_colours=model_colours[0]
 
     return(np.array(model_colours))
 
@@ -248,7 +251,7 @@ def get_mags(redshifts,
         
     #added by katherine, converts list to numpy array
     model_mags = np.array(model_mags)
-    if len(redshifts)==1:
+    if isinstance(redshifts,float):
         model_mags=model_mags[0]
 
     return(model_mags)
@@ -277,7 +280,7 @@ def get_fluxes(redshifts,
                       'UKIDSS_K_Vega',
                       'WISE_W1_Vega',
                       'WISE_W2_Vega'],
-             units='fnu',
+             unit='fnu',
              **kwargs):
     """Get synthetic magnitudes from quasar model.
 
