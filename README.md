@@ -22,6 +22,11 @@ Changes include:
         becker+2013 (original implementation)
         madau+1995
         inoue+2014 (new default)
+        
+- easily add new filters by putting files in the filter/ directory and running "add_filters.py"
+
+- return photometric fluxes by specifying "fnu" or "flam" in the "flux" keyword of get_mags()
+
  
 
 Original readme below:
