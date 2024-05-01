@@ -209,7 +209,7 @@ def get_mags(redshifts,
     galaxy is turned on and an unusually sparse combination of filters is
     requested.
     """
-
+    
     waves, responses = [], []
     for band in filters:
         band = band.replace('_AB', '')
@@ -258,7 +258,7 @@ def get_mags(redshifts,
     if isinstance(redshifts,float):
         model_mags=model_mags[0]
         
-    if flux in [None,'AB','Vega']:
+    if flux in [None,'AB','Vega','mag_AB','mag_Vega']:
         return(model_mags)
     
     elif flux in ['flam','fnu']:
@@ -278,7 +278,8 @@ def get_mags(redshifts,
             
             flam = 2.9982e-5*fnu/(pivlam*pivlam)
             return flam
-
+    else:
+        raise ValueError("flux must be None, 'AB','Vega', 'fnu', or 'flam'.")
 
 
 def sed2mags(filters, waves, fluxes, responses):
