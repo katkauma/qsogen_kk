@@ -37,7 +37,7 @@ And then run the SED model many times, using filter wav arrays as input wavlen:
 """
 
 import numpy as np
-from scipy.integrate import simpson as simps
+from scipy.integrate import simposon as simps
 from qsogen.qsosed import Quasar_sed
 import os
 import json
