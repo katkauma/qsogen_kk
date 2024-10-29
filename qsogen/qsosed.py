@@ -73,6 +73,20 @@ def tau_eff_dpl(z):
     tau_eff = A*(z/z_b)**(-a_1) * (0.5*(1+(z/z_b)**(1/delta)))**((a_1-a_2)*delta)+c
     return np.where(tau_eff < 0, 0., tau_eff)
 
+def tau_eff_tpl(z):#, A, z_b, z_c, a_1, a_2, a_3, delta_1, delta_2):#,c):
+    
+    A = 0.0785728
+    z_b1 = 1.48078815
+    z_b2 = 5.37402188
+    a_1 = -0.6441678
+    a_2 = -2.81894584
+    a_3 = -8.12118557
+    delta_1 = 0.11641412
+    delta_2 = 0.06325083
+    
+    return A*((z)/(z_b1))**(-a_1) * (0.5*(1+((z)/(z_b1))**(1/delta_1)))**((a_1-a_2)*delta_1)*(0.5*(1+((z)/(z_b2))**(1/delta_2)))**((a_2-a_3)*delta_2)
+
+
 def tau_eff_becker2013(z):
         #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
     # using the coefficient values from bosman et al 2022
@@ -88,6 +102,7 @@ def tau_eff_becker2013(z):
     return np.where(tau_eff < 0, 0., tau_eff)
 
 absmodels = {'dpl':tau_eff_dpl,
+             'tpl':tau_eff_tpl,
              'becker+2013':tau_eff_becker2013}
 
 
@@ -121,6 +136,7 @@ class Quasar_sed:
                  wavlen=np.logspace(2.95, 4.48, num=20001, endpoint=True),
                  ebv=0.,
                  params=None,
+                 #absmod='dpl',
                  **kwargs):
         """Initialises an instance of the Quasar SED model.
 
@@ -578,6 +594,21 @@ class Quasar_sed:
                 scale = np.exp(-r*scale)
                 self.flux = scale*self.flux
                 self.host_galaxy_flux = scale*self.host_galaxy_flux
+                
+        elif self.absmod == 'tpl':
+            tau_eff = absmodels[self.absmod]
+            lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])
+            ratios = np.array([1.690e-2, 4.692e-3, 2.239e-3, 1.319e-3, 8.707e-4, 6.178e-4, 4.609e-4, 3.569e-4, 2.843e-4, 2.318e-4, 1.923e-4, 1.622e-4, 1.385e-4, 1.196e-4, 1.043e-4 ,9.174e-5, 8.128e-5, 7.251e-5, 6.505e-5, 5.868e-5, 5.319e-5, 4.843e-5, 4.427e-5 ,4.063e-5, 3.738e-5, 3.454e-5, 3.199e-5, 2.971e-5, 2.766e-5, 2.582e-5, 2.415e-5, 2.263e-5, 2.126e-5, 2.000e-5, 1.885e-5, 1.779e-5, 1.682e-5, 1.593e-5, 1.510e-5])/1.690e-2
+            
+            for i, line in enumerate(lines):
+                scale = np.zeros_like(self.flux)
+                wlim = line
+                r = ratios[i]
+                zlook = ((1.+self.z)*self.wavlen)/wlim -1.
+                scale[self.wavlen<wlim] = tau_eff(zlook[self.wavlen<wlim])
+                scale = np.exp(-r*scale)
+                self.flux = scale*self.flux
+                self.host_galaxy_flux = scale*self.host_galaxy_flux
             
             
             
@@ -595,14 +626,6 @@ class Quasar_sed:
             c1 = (tau<2.2) 
             c2 = (tau<=5.7) & (tau>=2.2)
             c3 = (tau>5.7) 
-
-            #tau[c1]=np.multiply(tau[c1]**1.2,A1[:,None])
-            #tau[c2]=np.multiply(tau[c2]**3.7,A2[:,None])
-            #tau[c3]=np.multiply(tau[c3]**5.5,A3[:,None])
-
-
-            #np.select([c1, c2, c3], [A1 * (wv_array / np.array(lines))**1.2, A2 * (wv_array / np.array(lines))**3.7, A3 * (wv_array / np.array(lines))**5.5])
-            #plt.plot(wvarray,np.sum(tau,axis=0))
 
 
             #np.putmask(tau,tau<1.,0)

@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson as simps
 import os
 import json
 import glob
@@ -33,7 +33,7 @@ def produce_zeropoints(system='Vega',
         fluxes = [np.interp(wav, wav_Vega, flux_Vega) for wav in waves]
 
         for i in range(len(filters)):
-            F = simps(waves[i]*responses[i]*fluxes[i], waves[i])
+            F = simps(waves[i]*responses[i]*fluxes[i], x=waves[i])
             zp_dict[filters[i]+'_Vega']=float('{:.6e}'.format(F))
             #print('    ' + filters[i] + '_Vega={:.6e},'.format(F))
 
@@ -41,7 +41,7 @@ def produce_zeropoints(system='Vega',
         const = 0.1088544752  # 3631Jy in erg/s/cm2/A
         # AB system has constant f_nu, so convert to f_lambda
         for i in range(len(filters)):
-            F = const*simps(waves[i]**(-1)*responses[i], waves[i])
+            F = const*simps(waves[i]**(-1)*responses[i], x=waves[i])
             zp_dict[filters[i]+'_AB']=float('{:.6e}'.format(F))
             #print('    ' + filters[i] + '_AB={:.6e},'.format(F))
     else:
@@ -61,7 +61,7 @@ def produce_pivotwv(filters=flist):
     pivot_dict ={}
 
     for i in range(len(filters)):
-        F = np.sqrt(simps(waves[i]*responses[i], waves[i])/simps(responses[i]/waves[i],waves[i]))
+        F = np.sqrt(simps(waves[i]*responses[i],x= waves[i])/simps(responses[i]/waves[i],x=waves[i]))
         pivot_dict[filters[i]]=float('{:.7g}'.format(F))
         
         

@@ -287,7 +287,7 @@ def sed2mags(filters, waves, fluxes, responses):
         mags = np.full(len(waves), np.nan)
 
         for i in range(len(waves)):
-            flux = simps(waves[i]*responses[i]*fluxes[i], waves[i])
+            flux = simps(waves[i]*responses[i]*fluxes[i], x=waves[i])
             mags[i] = -2.5*np.log10(flux/zeropoints[filters[i]])
 
         return(mags)
