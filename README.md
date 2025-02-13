@@ -19,9 +19,13 @@ Changes include:
         spiral_sqire_spi4.sed
 - allows the chance to use different IGM absorption models through the "absmod" parameter in the Quasar_sed class.  This also works for quasar models and colours.  Options include:
 
-        becker+2013 (original implementation)
-        madau+1995
-        inoue+2014 (new default)
+        'becker+2013' (original implementation)
+        'madau1995'
+        'meiksin2006'
+        'inoue+2014'
+        'kauma+'
+  
+- Average lyman continuum absorption: Instead of a lyman limit system at rest 912 A, the absorption model now includes the average lyman continuum absorption due to randomly-distributed lyman limit systems as according to the respective absorption models. If you want to turn this off and enable the original behavior of setting flux to zero at 912 A rest, you can do this by specifying 'lylim=912' and 'lc=False'.  The default settings are 'lylim=0.' and 'lc=True'.  'lylim' should be specified if using 'becker+2013' absorption model, as it otherwise does not include lyman continuum absorption.
         
 - easily add new filters by putting files in the filter/ directory and running "add_filters.py"
 
