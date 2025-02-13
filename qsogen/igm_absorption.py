@@ -195,11 +195,11 @@ def tau_lc_meiksin(zs, l_obs):
 
 # return the transmission for each object
 
-def calc_transmission(z,wavred,model,dla=False,lc=True):
+def calc_transmission(z,wavred,model,lc=True):
     # assign lines, ratios, etc
     lines, ratios, tau_lya_model = None, None, None
     
-    if model=='kauma' or model =='inoue+2014' or model=='kaumaplus':
+    if model=='kauma+' or model =='inoue+2014' or model=='kaumaplus':
         lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226,
                           923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])
         
@@ -216,7 +216,7 @@ def calc_transmission(z,wavred,model,dla=False,lc=True):
                            1.42899408e-03, 1.33905325e-03, 1.25798817e-03, 
                            1.18343195e-03, 1.11538462e-03, 1.05266272e-03, 
                            9.95266272e-04, 9.42603550e-04, 8.93491124e-04])[:,None]
-        if model=='kauma':
+        if model=='kauma+':
             tau_lya_model = tau_eff_kauma
             tau_lc_model = tau_lc_kauma
         elif model=='kaumaplus':
@@ -263,7 +263,7 @@ def calc_transmission(z,wavred,model,dla=False,lc=True):
         tau_lc_model = tau_lc_meiksin
         
     else:
-        raise ValueError("model must be 'kauma', 'inoue+2014', becker+2013, meiksin2006 or madau1995'.")
+        raise ValueError("model must be 'kauma+', 'inoue+2014', 'becker+2013', 'meiksin2006' or 'madau1995'.")
 
         
     zlook = np.outer(1./lines,wavred)-1.
@@ -306,106 +306,4 @@ def calc_transmission(z,wavred,model,dla=False,lc=True):
     return np.exp(-(tau_laf+tau_dla+tau_lc))
 
 
-
-def calc_transmission_forloop(z,wavred,model,dla=False):
-    # assign lines, ratios, etc
-    lines, ratios, tau_lya_model = None, None, None
     
-    if model=='kauma' or model =='inoue+2014':
-        lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226,
-                          923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])
-        
-        ratios = np.array([1.00000000e+00, 2.77633136e-01, 1.32485207e-01,
-                           7.80473373e-02, 5.15207101e-02, 3.65562130e-02, 
-                           2.72721893e-02, 2.11183432e-02, 1.68224852e-02, 
-                           1.37159763e-02, 1.13786982e-02, 9.59763314e-03, 
-                           8.19526627e-03, 7.07692308e-03, 6.17159763e-03, 
-                           5.42840237e-03, 4.80946746e-03, 4.29053254e-03, 
-                           3.84911243e-03, 3.47218935e-03, 3.14733728e-03, 
-                           2.86568047e-03, 2.61952663e-03, 2.40414201e-03, 
-                           2.21183432e-03, 2.04378698e-03, 1.89289941e-03, 
-                           1.75798817e-03, 1.63668639e-03, 1.52781065e-03, 
-                           1.42899408e-03, 1.33905325e-03, 1.25798817e-03, 
-                           1.18343195e-03, 1.11538462e-03, 1.05266272e-03, 
-                           9.95266272e-04, 9.42603550e-04, 8.93491124e-04])
-        if model=='kauma':
-            tau_lya_model = tau_eff_kauma
-        else:
-            tau_lya_model = tau_eff_laf_inoue2014
-    
-    elif model=='becker+2013':
-        lines = np.array([1215.67, 1025.72, 972.537])
-        ratios = np.array([1.,0.19005811214447021,0.06965703475200001])
-        tau_lya_model = tau_eff_becker2013
-        
-    elif model=='madau1995':
-        lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803,930.748, 926.226, 923.150, 920.963, 919.352,918.129, 917.181, 916.429, 915.824, 915.329,914.919, 914.576])
-        ratios = (np.array(0.0036,0.0017,0.0011846,0.0009410,0.0007960,0.0006967,0.0006236,0.0005665,0.0005200,0.0004817,0.0004487,0.0004200,0.0003947,0.000372,0.000352,0.0003334,0.00031644)/0.0036)
-        tau_lya_model = tau_eff_madau1995
-    
-    elif model=='meiksin2006':
-        lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, # n=2 to n=9
-                          920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703]) #up to n=31
-        
-        ratios = np.array([1., 0.348, 0.179, 0.109, 0.0722, 0.0508, 0.0373, 0.0283, # n=2 to n=9
-                          0.02058182, 0.01543636, 0.01187413, 0.00932967,
-                          0.00746374, 0.00606429, 0.00499412, 0.00416176, 0.00350464, # n=10-31; t/tau_alpha = 20.376/(n(n^2-1))
-                          0.00297895, 0.00255338, 0.00220519, 0.00191756, 0.00167787,
-                          0.00147652, 0.00130615, 0.00116103, 0.00103663, 0.00092939,
-                          0.00083645, 0.00075551, 0.00068468])
-        
-        if z<3.:
-            ratios[1:] *= (0.25*(1.+z))**(1./3.)
-        elif z>=3.:
-            ratios[1:4] *= (0.25*(1.+z))**(1./6.)
-            #ratios[1:4] += (0.25*(1.+z)**(1./6.))
-            ratios[5:] *= (0.25*(1.+z))**(1./3.)
-
-            
-        ratios = ratios[:,None]
-        tau_lya_model = tau_eff_meiksin2006
-        
-    else:
-        raise ValueError("model must be 'kauma', 'inoue+2014', becker+2013, meiksin2006 or madau1995'.")
-
-    tau = np.zeros_like(wavred)
-    for i,line in enumerate(lines):
-        scale = np.zeros_like(wavred)
-        r = ratios[i]
-        zlook = (wavred)/line-1.
-        mask = zlook<z
-        scale[mask] = tau_lya_model(zlook[mask])
-        tau += -r*scale
-    
-        
-    '''    
-    zlook = np.outer(1./lines,wavred)-1.
-    tau_laf_i = np.zeros_like(zlook)
-    mask = zlook<z
-    tau_laf_i[mask] = tau_lya_model(zlook[mask])
-    tau_laf_i *= ratios
-    tau_laf = np.sum(tau_laf_i,axis=0)
-    if dla==True:
-        dla_ratios = np.array([1., 0.9554731 , 0.92640693,
-                        0.90290662, 0.88373531, 0.86703772, 
-                        0.85157699, 0.83797155, 0.82560297, 
-                        0.81385281, 0.80272109, 0.79220779, 
-                        0.78231293, 0.77303649, 0.76437848, 
-                        0.75572047, 0.74768089, 0.74025974,
-                        0.73283859, 0.72541744, 0.71861472, 
-                        0.711812  , 0.70500928, 0.69882498, 
-                        0.69264069, 0.6864564 , 0.68089054, 
-                        0.67470625, 0.66914038, 0.66357452, 
-                        0.65862709, 0.65306122, 0.64811379, 
-                        0.64316636, 0.63821892, 0.63327149, 
-                        0.62894249, 0.62399505, 0.61966605])[:,None]
-        tau_dla_i = np.zeros_like(zlook)
-        tau_dla_i[mask] = tau_eff_dla_inoue2014(zlook[mask]np.exp(-(tau_laf+tau_dla)))
-        tau_dla = np.sum(tau_dla_i*dla_ratios,axis=0)
-    else:
-        tau_dla = 0.'''
-    
-    
-    #calculate transmissio
-    
-    return np.exp(tau)

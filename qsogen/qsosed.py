@@ -525,12 +525,8 @@ class Quasar_sed:
         self.flux = self.flux*10.0**(-exttmp/2.5)
 
     def lyman_forest(self):
-        if self.absmod=='inoue+2014' or self.absmod=='kauma':
-            _dla=True
-        else:
-            _dla=False
         
-        scale = calc_transmission(self.z, self.wavred, self.absmod,dla=_dla,lc=self.lc)
+        scale = calc_transmission(self.z, self.wavred, self.absmod,lc=self.lc)
         self.flux *= scale
         self.host_galaxy_flux *= scale
               

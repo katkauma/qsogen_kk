@@ -63,5 +63,5 @@ params = dict(plslp1=-0.349,
               gflag=True,
               fragal=0.244,
               gplind=0.684,
-              absmod="kauma",
-              lc=False)
+              absmod="kauma+",
+              lc=True)
