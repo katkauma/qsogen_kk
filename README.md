@@ -4,7 +4,12 @@
 This fork contains changes made for my personal use of the code.  Use at your own risk.
 
 Changes include:
-- made pip installable via "pip install git+https://github.com/katkauma/qsogen_kk.git" (installs as qsogen)
+- made pip installable via "pip install git+https://github.com/katkauma/qsogen_kk.git" (installs as qsogen).  You can then import the module and function as a normal python package, eg:
+  
+        import qsogen as qg
+        from qsogen import Quasar_sed, get_mags
+        from qsogen.igm_absorption import calc_transmission
+                
 - added more of the swire galaxy templates, with names:
 
         elliptical_swire_2gyr.sed
