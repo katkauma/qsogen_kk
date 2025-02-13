@@ -59,7 +59,7 @@ params = dict(plslp1=-0.349,
               benorm=-27.,    # (not fit for)
               bcnorm=False,
               lyForest=True,
-              lylim=912,   # (not fit for)
+              lylim=0,   # (not fit for)
               gflag=True,
               fragal=0.244,
               gplind=0.684,
