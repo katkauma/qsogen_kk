@@ -134,5 +134,7 @@ if __name__ == '__main__':
     with open("filterinfo.json","w") as file:
         json.dump(filterinfo,file,indent=4,sort_keys=True)
     
-
-
+def get_filter(name):
+    #return filter response curve
+    wav, flux = np.genfromtxt(f'{install_path}/filters/{name}.filter', unpack=True)
+    return wav, flux
