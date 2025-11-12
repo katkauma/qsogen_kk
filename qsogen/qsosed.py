@@ -94,6 +94,7 @@ class Quasar_sed:
                  LogL3000=46,
                  wavlen=np.logspace(2.95, 4.48, num=20001, endpoint=True),
                  ebv=0.,
+                 unit='flam',
                  params=None,
                  #absmod='dpl',
                  **kwargs):
@@ -126,10 +127,13 @@ class Quasar_sed:
             to control scaling of emission-line and host-galaxy contributions.
             Default is to use the relevant luminosity from `zlum_lumval`, which
             gives a smooth scaling with redshift `z`.
+        unit : str, optional
+            Specifies if the sed should be returned in values of flam (ergs cm^-2 s^-1 A^-1) or fnu (Jy).  Default is 'flam'.
         params : dict, optional
             Dictionary of additional parameters, including emission-line and
             host-galaxy template SEDs, reddening curve. Default is to read in
             from config.py file.
+
 
         Other Parameters
         ----------------
@@ -192,6 +196,8 @@ class Quasar_sed:
                 print('Warning: "{}" not recognised as a kwarg'.format(key))
             _params[key] = value
         self.params = _params
+        
+        self.unit=unit
 
         self.z = max(float(z), 0.005)
         # avoid crazy flux normalisation at zero redshift
@@ -275,8 +281,12 @@ class Quasar_sed:
             self.host_galaxy_flux[:lylim] = 0.0
             # Then add in Ly forest absorption at z>1.4
             self.lyman_forest()
-
-        # redshift spectrum
+            
+        # return values in jy if unit=fnu
+        if self.unit=='fnu':
+            self.flux *= 3.34e4 * self.wavred**2
+            self.host_galaxy_flux *= 3.34e4 * self.wavred**2
+            self.black_body_flux *= 3.34e4 * self.wavred**2
         
 
     def wav2num(self, wav):
@@ -332,6 +342,7 @@ class Quasar_sed:
             cmult = bbnorm / bbval
             bb_flux = cmult*bb(tbb, self.wavlen)
             self.flux += bb_flux
+            self.black_body_flux = bb_flux
 
     def add_balmer_continuum(self,
                              tbc=15000., taube=1., wavbe=3646.,

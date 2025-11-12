@@ -32,14 +32,17 @@ from scipy.special import factorial
     return A*((z)/(z_b1))**(-a_1) * ((1.+((z)/(z_b1))**(1./delta_1)))**((a_1-a_2)*delta_1)*((1.+((z)/(z_b2))**(1./delta_2)))**((a_2-a_3)*delta_2) '''
 
 def tau_eff_kauma(z):
-    z_1= 1.26
-    a_1= np.float64(1.43)
-    A1= np.float64(0.015531862232038313)
-    z_2= 5.14
-    a_2= 3.605
-    a_3= 7.628
-    delta= 0.0295
-    A2=1.9866
+    z_1= 1.2593846589041013
+    a_1= 1.405759341921824
+    A1= 0.01549433546364817
+    z_2= 5.174708845486191
+    a_2= 3.6336748056970474
+    a_3= 7.587297773671628
+    delta= 0.030496534844542546
+    A2=2.0448040499201565
+    
+    
+    
 
     return np.piecewise(z,[z<z_1, z>=z_1], [lambda x:A1*((1.+x))**a_1, lambda z:A2*((1.+z)/(1.+z_2))**(a_2)*(0.5*(1.+((1.+z)/(1.+z_2))**(1./delta)))**(delta*(a_3-a_2))])
 
@@ -51,9 +54,134 @@ def tau_eff_kauma_high(z):
     A2=1.9866
     return A2*((1.+z)/(1.+z_2))**(a_2)*(0.5*(1.+((1.+z)/(1.+z_2))**(1./delta)))**(delta*(a_3-a_2))
 
+###################
+    
+def tau_laf_new_tpl(z):
+    z_1 = 1.339
+    z_2 = 5.269
+    a_1 = 1.352
+    a_2 = 3.824
+    a_3 = 7.599
+
+    A1 = 0.0157
+    A2 = 0.00192
+    A3 = 1.88E-6
+    
+    # a_1=1.5164
+    # a_2=3.6385
+    # a_3=6.6101
+    # z_1=1.3111
+    # z_2=5.0032
+    # A1=1.479e-02
+    # A2=2.500e-03
+    # A3=1.216e-05
+
+
+    t = np.piecewise(z,[z<z_1,(z>=z_1) & (z<z_2), z>=z_2], [lambda z:A1*(1.+z)**a_1, lambda z:A2*(1.+z)**a_2, lambda z:A3*(1.+z)**a_3])
+    return t
+
+
+        
+def _lc_igm_part(zi, zf, zb, alpha):
+    A = 310
+    beta_m1 = 0.7
+    const = 0.342
+    a_3bm1 = alpha-3*beta_m1
+    
+    #### note to self - this doesnt work for the z>z2 case, theres an extra factor
+
+    
+    return const*(1+zb)**-(alpha-1) * (a_3bm1)**-1 * ((1+zf)**a_3bm1 - (1+zi)**a_3bm1)
+    
+    
+def tau_lc_igm_new(zs, l_obs):
+    z_1 = 1.339
+    z_2 = 5.269
+    a_1 = 1.352
+    a_2 = 3.824
+    a_3 = 7.599
+    # a_1=1.5164
+    # a_2=3.6385
+    # a_3=6.6101
+    # z_1=1.3111
+    # z_2=5.0032
+    
+    lratio= (l_obs/912.)
+    
+    if zs<z_1:
+        return lratio**2.1 * _lc_igm_part(zi=lratio-1, zf=zs, zb=z_1, alpha=a_1)
+        # return -0.3394 * lratio**2.1 * ((1+zs)**-0.75 - (lratio)**-0.75)
+
+    elif (zs>=z_1) & (zs<z_2):
+        return lratio**2.1 * np.piecewise(lratio,
+                                        [lratio<z_1+1, lratio>=z_1+1], 
+                                        [lambda lratio: _lc_igm_part(lratio-1, zf=z_1, zb=z_1, alpha=a_1) + _lc_igm_part(zi=z_1, zf=zs, zb=z_1, alpha=a_2),
+                                         lambda lratio: _lc_igm_part(lratio-1, zf=zs, zb=z_1, alpha=a_2)])
+        
+        # return lratio**2.1 * np.piecewise(lratio, 
+        #                     [lratio<z_1+1, lratio>=z_1+1], 
+        #                     [lambda lratio: 0.018*(1+zs)**1.72 + 0.339*lratio**-0.75 - 0.257,
+                             
+        #                     lambda lratio: 0.018*((1+zs)**1.72 - lratio**1.72)]
+        #                      )
+
+    elif (zs>=z_2):
+        return lratio**2.1 * np.piecewise(lratio,
+                                        [lratio<z_1+1, (lratio>=z_1+1) & (lratio<z_2+1), lratio>=z_2+1],
+                                        [lambda lratio: _lc_igm_part(lratio-1, zf=z_1, zb=z_1, alpha=a_1) + _lc_igm_part(zi=z_1, zf=z_2, zb=z_1, alpha=a_2) + ((1+z_2/1+z_1))**(a_2-1)*_lc_igm_part(zi=z_2, zf=zs, zb=z_2, alpha=a_3),
+                                         lambda lratio: _lc_igm_part(zi=lratio-1, zf=z_2, zb=z_1, alpha=a_2) + ((1+z_2)/(1+z_1))**(a_2-1)*_lc_igm_part(zi=z_2, zf=zs, zb=z_2, alpha=a_3),
+                                         lambda lratio: ((1+z_2)/(1+z_1))**(a_2-1)*_lc_igm_part(zi=lratio-1, zf=zs, zb=z_2, alpha=a_3)])
+        # return lratio**2.1 * np.piecewise(lratio, 
+        #                     [lratio<z_1+1, (lratio>=z_1+1) & (lratio<z_2+1), lratio>=z_2+1], 
+        #                     [lambda lratio: 5.5e-6*(1+zs)**5.5 + 0.339*lratio**-0.75 - 0.317,
+                             
+        #                     lambda lratio: 5.5e-6*(1+zs)**5.5 - 0.018*lratio**1.72 + 0.2898,
+                             
+        #                     lambda lratio: 5.5e-6*((1+zs)**5.5 - lratio**5.5)]
+        #                      )
+    
+    
+    
+def tau_lc_igm_lls_new(zs, l_obs):
+    tau_igm = tau_lc_igm_new(zs, l_obs)
+    lratio = l_obs/911.8
+    zs_p1 = 1.+zs
+
+    gammafn = 0.3134#0.2788  # Gamma(0.5,1) i.e., Gamma(2-beta,1) with beta = 1.5
+    n0 = 0.15
+    gamma = 1.94
+    #beta = 1.5
+    n = np.arange(9) #first 10 terms cause convergence
+    
+    term1 = gammafn - np.exp(-1.)
+    term2 = np.sum(np.power(-1.,n) / (factorial(n) * (2.*n-1.)))
+    term3 = (zs_p1**(-0.5+gamma) * lratio**1.5 - lratio**(gamma+1.))
+
+    term4 = np.sum(np.array([((0.5 * np.power(-1.,n) / (factorial(n) * ((3.*n - gamma - 1) * (n -0.5)))) * (zs_p1**(gamma +1 - (3.*n)) * lratio**(3.*n) - lratio**(gamma + 1))) for n in np.arange(1,10)]), axis=0)
+
+    tau_lls = n0 / (gamma - 0.5) * ((term1 - term2) * term3 - term4)
+    return tau_igm+tau_lls
+
+def tau_new_tpl_inoue_dla(zs, l_obs):
+    tau_igm = tau_lc_igm_new(zs, l_obs)
+    
+    lratio = l_obs/911.8
+    zs_p1 = 1.+zs
+    zlim = 911.8*zs_p1
+    if zs<2.0:
+        tau_dla=0.211*zs_p1**2.0 - 7.66e-2*zs_p1**2.3*lratio**(-0.3) - 0.135*lratio**2.
+    else:
+        zs_term1 = zs_p1**3.0
+        zs_term2 = zs_p1**3.3
+        tau_dla= np.piecewise(lratio, [lratio<3.,lratio>=3.], [lambda lratio: 0.634 + 4.7e-2*zs_term1 - 1.78e-2*zs_term2*lratio**(-0.3) - 0.135*lratio**2. - 0.291*lratio**(-0.3),
+        lambda lratio: 4.7e-2*zs_term1 - 1.78e-2*zs_term2*lratio**(-0.3) - 2.92e-2*lratio**3.])
+        
+    return tau_igm+tau_dla
+    
     
     
      
+####################
 
 def tau_eff_becker2013(z):
     #Ly alpha optical depth from Becker et al. 2013MNRAS.430.2067B.
@@ -88,8 +216,9 @@ def tau_eff_meiksin2006(z):
 def tau_lc_kauma(zs, l_obs):
     lratio = l_obs/911.8
     zs_p1 = 1.+zs
-    gammafn = 0.2788  # Gamma(0.5,1) i.e., Gamma(2-beta,1) with beta = 1.5
-    n0 = 0.25
+    gammafn = 0.3134#Gamma(0.72,1) i.e., Gamma(2-beta,1) with beta = 1.28
+    #gammafn = 0.2788  # Gamma(0.5,1) i.e., Gamma(2-beta,1) with beta = 1.5
+    n0 = 0.15 #mistakenly had at 0.25 earlier. values from songaila cowie 2010
     gamma = 1.94
     #beta = 1.5
     n = np.arange(9) #first 10 terms cause convergence
@@ -109,8 +238,8 @@ def tau_lc_kaumaplus(zs, l_obs):
     zs_p1 = 1.+zs
     tau_igm = 0.805*lratio**3. * (1./lratio - 1./zs_p1)
 
-    gammafn = 0.2788  # Gamma(0.5,1) i.e., Gamma(2-beta,1) with beta = 1.5
-    n0 = 0.25
+    gammafn = 0.3134#0.2788  # Gamma(0.5,1) i.e., Gamma(2-beta,1) with beta = 1.5
+    n0 = 0.15
     gamma = 1.94
     #beta = 1.5
     n = np.arange(9) #first 10 terms cause convergence
@@ -135,7 +264,7 @@ def tau_lc_inoue(zs,l_obs):
     if zs<1.2:
         zs_term = zs_p1**(-0.9)
         tau_laf= 0.325*(lratio**1.2-zs_term*(lratio**2.1))
-    elif zs<4.7:
+    elif (zs<4.7) & (zs>=1.2):
         zs_term = zs_p1**1.6
         tau_laf= np.piecewise(lratio, [lratio<2.2,lratio>=2.2], [lambda lratio: 2.55e-2*zs_term * lratio**2.1 + 0.325*lratio**1.2 - 0.25*lratio**2.1, lambda lratio: 2.55e-2 * (zs_term * lratio**2.1 - lratio**3.7)])
         
@@ -191,15 +320,24 @@ def tau_lc_meiksin(zs, l_obs):
 
     tau_lls = n0 * ((term1 - term2) * term3 - term4)
     return tau_igm+tau_lls
+
+
+
 ############################################
 
 # return the transmission for each object
 
-def calc_transmission(z,wavred,model,lc=True):
+def calc_transmission(z,wavred,model, lc=True):
+    debug=False
     # assign lines, ratios, etc
     lines, ratios, tau_lya_model = None, None, None
+    if debug:
+        print('\n'+model)
+
     
-    if model=='kauma+' or model =='inoue+2014' or model=='kaumaplus':
+    if model in ['kauma+', 'inoue+2014', 'kaumaplus', 'tpl_pow', 'tpl_pow_p_inoue']:
+        if debug:
+            print('model is kauma+, inoue+2014, kaumaplus or tpl_pow')
         lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226,
                           923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703, 912.645, 912.592, 912.543, 912.499, 912.458, 912.420, 912.385, 912.353, 912.324])
         
@@ -222,6 +360,12 @@ def calc_transmission(z,wavred,model,lc=True):
         elif model=='kaumaplus':
             tau_lya_model = tau_eff_kauma
             tau_lc_model = tau_lc_kaumaplus
+        elif model=='tpl_pow':
+            tau_lya_model = tau_laf_new_tpl
+            tau_lc_model = tau_lc_igm_lls_new
+        elif model=='tpl_pow_p_inoue':
+            tau_lya_model = tau_laf_new_tpl
+            tau_lc_model = tau_new_tpl_inoue_dla
         else:
             tau_lya_model = tau_eff_laf_inoue2014
             tau_lc_model = tau_lc_inoue
@@ -229,17 +373,24 @@ def calc_transmission(z,wavred,model,lc=True):
 
     
     elif model=='becker+2013':
+        if debug:
+            print('model is becker+2013')
         lines = np.array([1215.67, 1025.72, 972.537])
         ratios = np.array([1.,0.19005811214447021,0.06965703475200001])[:,None]
         tau_lya_model = tau_eff_becker2013
+        lc=False
         
     elif model=='madau1995':
-        lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803,930.748, 926.226, 923.150, 920.963, 919.352])#,918.129, 917.181, 916.429, 915.824, 915.329,914.919, 914.576])
-        ratios = (np.array([0.0036,0.0017,0.0011846,0.0009410,0.0007960,0.0006967,0.0006236,0.0005665,0.0005200,0.0004817])/0.0036)[:,None]#,0.0004487,0.0004200,0.0003947,0.000372,0.000352,0.0003334,0.00031644])/0.0036)[:,None]
+        if debug:
+            print('model is madau1995')
+        lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803,930.748, 926.226, 923.150, 920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329,914.919, 914.576])
+        ratios = (np.array([0.0036,0.0017,0.0011846,0.0009410,0.0007960,0.0006967,0.0006236,0.0005665,0.0005200,0.0004817,0.0004487,0.0004200,0.0003947,0.000372,0.000352,0.0003334,0.00031644])/0.0036)[:,None]
         tau_lya_model = tau_eff_madau1995
         tau_lc_model = tau_lc_madau
     
     elif model=='meiksin2006':
+        if debug:
+            print('model is meiksin 2006')
         lines = np.array([1215.67, 1025.72, 972.537, 949.743, 937.803, 930.748, 926.226, 923.150, # n=2 to n=9
                           920.963, 919.352, 918.129, 917.181, 916.429, 915.824, 915.329, 914.919, 914.576, 914.286, 914.039, 913.826, 913.641, 913.480, 913.339, 913.215, 913.104, 913.006, 912.918, 912.839, 912.768, 912.703]) #up to n=31
         
@@ -259,6 +410,7 @@ def calc_transmission(z,wavred,model,lc=True):
 
             
         ratios = ratios[:,None]
+        
         tau_lya_model = tau_eff_meiksin2006
         tau_lc_model = tau_lc_meiksin
         
@@ -273,7 +425,7 @@ def calc_transmission(z,wavred,model,lc=True):
     tau_laf_i *= ratios
     tau_laf = np.sum(tau_laf_i,axis=0)
 
-    if model != 'inoue+2014':
+    if model not in ['inoue+2014', 'tpl_pow_p_inoue']:
         tau_dla = 0.
     else:
         dla_ratios = np.array([1., 0.9554731 , 0.92640693,

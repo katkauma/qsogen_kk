@@ -12,5 +12,5 @@ setup(
                       'astropy',                   
                       ],
     include_package_data=True,
-    package_data={'qsogen':['filterinfo.json'],'qsogen.data':['*'],'qsogen.filters':['*.filter'],'qsogen.galaxy_templates':['*.sed']}
+    package_data={'qsogen':['filterinfo.json'],'qsogen.data':['*'],'qsogen.filter_data':['*.filter'],'qsogen.galaxy_templates':['*.sed']}
 )

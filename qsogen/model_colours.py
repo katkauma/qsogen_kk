@@ -63,9 +63,9 @@ zeropoints = {**Vega_zeropoints, **AB_zeropoints}
 wavarrs, resparrs = dict(), dict()
 for band in pivotwv.keys():
     try:
-        wavarr, response = np.genfromtxt(install_path+'/filters/'+band+'.filter', unpack=True)
+        wavarr, response = np.genfromtxt(install_path+'/filter_data/'+band+'.filter', unpack=True)
     except OSError:
-        wavarr, response = np.genfromtxt(install_path+'/filters/'+band+'.filter', unpack=True)
+        wavarr, response = np.genfromtxt(install_path+'/filter_data/'+band+'.filter', unpack=True)
     wavarrs[band] = wavarr
     resparrs[band] = response
 
