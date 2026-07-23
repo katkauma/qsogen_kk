@@ -63,5 +63,9 @@ params = dict(plslp1=-0.349,
               gflag=True,
               fragal=0.244,
               gplind=0.684,
+<<<<<<< HEAD
               absmod="NEW",
+=======
+              absmod="inoue+2014",
+>>>>>>> 0bd29ff37d001c97070dc3efa5b038a5508b5e92
               lc=True)
