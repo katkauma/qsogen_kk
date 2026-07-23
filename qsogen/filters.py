@@ -89,7 +89,7 @@ def produce_filterinfo(wave, response):
     pivot = produce_pivotwv(wave, response)
 
     
-    return dict(Vega_zeropoints=vega, AB_zeropoints=ab, Vega2AB=vega2ab, Pivot_wv=pivot)
+    return vega,ab, vega2ab, pivot
 
 def add_filter(name, wave, response, overwrite=False, header=''):
         
