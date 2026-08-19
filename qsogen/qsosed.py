@@ -16,7 +16,7 @@ This version first created 2019 Feb 07; last updated 2021 Mar 13.
 import numpy as np
 from scipy.integrate import quad
 from astropy.convolution import Gaussian1DKernel, convolve
-from .igm_absorption import calc_transmission
+from qsogen import igm_models
 
 _c_ = 299792458.0   # speed of light in m/s
 
@@ -61,8 +61,10 @@ def bb(tbb, wav):
     return (wav**(-3))/(np.exp(1.43877735e8 / (tbb*wav)) - 1.0)
 
 #######
-# different tau models
+# different IGM models - default is Kauma
+# user can specify a different model when running their own code, by calling e.g. Inoue = Inoue2014() and then Quasar_sed(z=2, igm_model=Inoue).
 
+Kauma2026 = igm_models.Kauma_flex(num_lines_max=31)
 
 
 class Quasar_sed:
@@ -96,7 +98,6 @@ class Quasar_sed:
                  ebv=0.,
                  unit='flam',
                  params=None,
-                 #absmod='dpl',
                  **kwargs):
         """Initialises an instance of the Quasar SED model.
 
@@ -163,11 +164,12 @@ class Quasar_sed:
         bcnorm : float, optional
             Balmer continuum normalisation. Default is zero as default emission
             line templates already include the Balmer Continuum.
+        igm_model : IGM model class, optional
+            Model used to compute IGM absorption. Default is Kauma2026.  Other options can be accessed by importing the relevant model from the qsogen.igm_models model, eg: Inoue2014, Meiksin2006, Temple2021, Madau1995.  Syntax to load the model is by calling the model class, e.g. Inoue = Inoue2014() and then Quasar_sed(z=2, igm_model=Inoue).
         lyForest : bool, optional
-            Flag to include Lyman absorption from IGM. Default is True.
+            Flag to include Lyman absorption (using specified model) from IGM. Default is True.
         lylim : float, optional
-            Wavelength of Lyman-limit system, below which all flux is
-            suppressed. Default is 912A.
+            Rest wavelength to simulate an added Lyman limit system. Default is 0.
         gflag : bool, optional
             Flag to include host-galaxy emission. Default is True.
         fragal : float, optional
@@ -210,8 +212,7 @@ class Quasar_sed:
 
         self.ebv = ebv
         
-        self.absmod = _params['absmod']
-        self.lc = _params['lc'] # include lyman continuum?
+        self.igm_model = _params['igm_model']
         
         self.plslp1 = _params['plslp1']
         self.plslp2 = _params['plslp2']
@@ -276,9 +277,11 @@ class Quasar_sed:
         # simulate the effect of a Lyman limit system at rest wavelength Lylim
         # by setting flux equal to zero at wavelengths < Lylim angstroms
         if _params['lyForest']:
+            self.igm_transmission = np.ones_like(self.wavred)
             lylim = self.wav2num(_params['lylim'])
-            self.flux[:lylim] = 0.0
-            self.host_galaxy_flux[:lylim] = 0.0
+            self.igm_transmission[:lylim] = 0.0
+            self.flux *= self.igm_transmission
+            self.host_galaxy_flux *= self.igm_transmission
             # Then add in Ly forest absorption at z>1.4
             self.lyman_forest()
             
@@ -536,10 +539,25 @@ class Quasar_sed:
         self.flux = self.flux*10.0**(-exttmp/2.5)
 
     def lyman_forest(self):
-        
-        scale = calc_transmission(self.z, self.wavred, self.absmod,lc=self.lc)
-        self.flux *= scale
-        self.host_galaxy_flux *= scale
+        """Add Lyman forest absorption to the model SED.
+
+        Uses the IGM model specified by self.igm_model, which is an instance of
+        a class that implements the IGM absorption model.  The default is
+        Kauma2026, but other models can be used by importing the relevant model
+        from qsogen.igm_models and passing it to Quasar_sed() as igm_model.
+        """
+        if self.igm_model is not None:
+            self.igm_transmission *= self.igm_model.transmission(self.z, self.wavred)
+            self.flux *= self.igm_transmission
+            self.host_galaxy_flux *= self.igm_transmission
+            # apply_igm() returns flux array with IGM absorption applied
+        else:
+            self.igm_model = Kauma2026
+            self.igm_transmission *= self.igm_model.transmission(self.z,self.wavred)
+            self.flux *= self.igm_transmission
+            self.host_galaxy_flux *= self.igm_transmission
+
+
               
 
          

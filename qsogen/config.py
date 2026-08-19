@@ -14,6 +14,7 @@ Edit 2022 May: update reference to published paper 2021MNRAS.508..737T
 """
 import numpy as np
 import os
+from .igm_models import Kauma_flex
 
 install_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,6 +33,9 @@ reddening_curve = np.genfromtxt(f3, unpack=True)
 # Recall flux_reddened(lambda) = flux(lambda)*10^(-A(lambda)/2.5)
 # where A(lambda) = E(B-V)*[E(lambda-V)/E(B-V) + R] 
 # so taking R=3.1, A(lambda) = E(B-V)*[Col#2 + 3.1]
+
+# initiate IGM absorption model
+Kauma2026 = Kauma_flex(num_lines_max=31)
 
 # fit to DR16Q median 2sigma-clipped colours in multi-imag bins
 params = dict(plslp1=-0.349,
@@ -60,12 +64,8 @@ params = dict(plslp1=-0.349,
               bcnorm=False,
               lyForest=True,
               lylim=0,   # (not fit for)
+              igm_model=Kauma2026,
               gflag=True,
               fragal=0.244,
               gplind=0.684,
-<<<<<<< HEAD
-              absmod="NEW",
-=======
-              absmod="inoue+2014",
->>>>>>> 0bd29ff37d001c97070dc3efa5b038a5508b5e92
-              lc=True)
+              )

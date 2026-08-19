@@ -174,7 +174,7 @@ def remove_filters(names):
 
 if __name__ == '__main__':
     #check files
-    files = glob.glob(install_path+'/filters/*.filter')
+    files = glob.glob(install_path+'/filter_data/*.filter')
     flist = [item.split('/')[-1][:-7] for item in files]
     
     with open(filterdict_file,'r') as file:
@@ -189,9 +189,9 @@ if __name__ == '__main__':
     wavarrs, resparrs, bands = [], [], []
     for band in flist:
         try:
-            wavarr, response = np.genfromtxt(install_path+'/filters/'+band+'.filter', unpack=True)
+            wavarr, response = np.genfromtxt(install_path+'/filter_data/'+band+'.filter', unpack=True)
         except OSError:
-            wavarr, response = np.genfromtxt(install_path+'/filters/'+band+'.filter', unpack=True)
+            wavarr, response = np.genfromtxt(install_path+'/filter_data/'+band+'.filter', unpack=True)
         wavarrs.append(wavarr)
         resparrs.append(response)
         bands.append(band)
@@ -200,21 +200,22 @@ if __name__ == '__main__':
 
     # get new files
     
-    for band, wave, response in bands, wavarrs, resparrs:
+    for band, wave, response in zip(bands, wavarrs, resparrs):
         vega, ab, vega2ab, pivot = produce_filterinfo(wave, response)
-        
+        #merge with the existing list
+        filterinfo['Vega_zeropoints'][band+'_Vega']=vega
+        filterinfo['AB_zeropoints'][band+'_AB']=ab
+        filterinfo['Pivot_wv'][band]=pivot
+        filterinfo['Vega_2_AB'][band]=vega2ab
+
         
     
-    vega = produce_zeropoints('Vega',filters=filterlist)
-    ab = produce_zeropoints('AB',filters=filterlist)
-    pivot = produce_pivotwv(filters=filterlist)
-    vega2ab = produce_vega2ab(vega_zp=vega,ab_zp=ab,filters=filterlist)
+    #vega = produce_zeropoints('Vega',filters=filterlist)
+    #ab = produce_zeropoints('AB',filters=filterlist)
+    #pivot = produce_pivotwv(filters=filterlist)
+    #vega2ab = produce_vega2ab(vega_zp=vega,ab_zp=ab,filters=filterlist)
     
-    #merge with the existing list
-    filterinfo['Vega_zeropoints'].update(vega)
-    filterinfo['AB_zeropoints'].update(ab)
-    filterinfo['Pivot_wv'].update(pivot)
-    filterinfo['Vega_2_AB'].update(vega2ab)
+
     
     for band in missingfilters:
         del filterinfo['Vega_zeropoints'][band+'_Vega']
