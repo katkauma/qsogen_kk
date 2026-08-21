@@ -586,7 +586,8 @@ class Temple2021(IGMModel):
         return self._num_lines_max
 
     def tau_lya_laf(self, z):
-        return 0.751*((1+z)/(4.5))**2.90 - 0.132
+        tau = 0.751*((1+z)/(4.5))**2.90 - 0.132
+        return np.where(tau > 0, tau, 0.) #necesarry bc this goes negative :-/
 
     def tau_laf_continuum(self, z, wavelength):
         ll_rest = 912.

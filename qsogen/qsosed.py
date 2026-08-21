@@ -66,6 +66,14 @@ def bb(tbb, wav):
 
 Kauma2026 = igm_models.Kauma_flex(num_lines_max=31)
 
+igm_models_dict = {
+    'kauma2026': Kauma2026,
+    'inoue+2014': igm_models.Inoue2014(),
+    'meiksin2006': igm_models.Meiksin2006(),
+    'temple2021': igm_models.Temple2021(),
+    'madau1995': igm_models.Madau1995()
+}
+
 
 class Quasar_sed:
     """Construct an instance of the quasar SED model.
@@ -199,6 +207,11 @@ class Quasar_sed:
             _params[key] = value
         self.params = _params
         
+        if type(self.params['igm_model']) is str:
+            self.igm_model = igm_models_dict[self.params['igm_model'].lower()]
+        else:
+            self.igm_model = self.params['igm_model']
+        
         self.unit=unit
 
         self.z = max(float(z), 0.005)
@@ -212,7 +225,6 @@ class Quasar_sed:
 
         self.ebv = ebv
         
-        self.igm_model = _params['igm_model']
         
         self.plslp1 = _params['plslp1']
         self.plslp2 = _params['plslp2']
